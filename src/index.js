@@ -1,3 +1,5 @@
+//import "@babel/polyfill";
+
 import $ from 'jquery';
 import './style.css';
 import viewStep from '@zonesoundcreative/view-step';
@@ -6,21 +8,23 @@ import {recRestart, recStart} from './recusage.js';
 import {progressStop, setRecLength, setRecInstr} from './rec.js';
 import {show, hide} from './cssusage';
 import arrow from './image.png';
+import {importAll} from './ussage';
+import {Conductor} from './conductor';
+import {Shaker} from './shaker';
+import {dm} from './device';
 
 const images = importAll(require.context('./icons', false, /\.(png|jpe?g|svg)$/));
 var viewstep = new viewStep('.step', 1, 2, {
     2: selectMode
 });
 var mode = -1;
+var modeList = [new Shaker(), new Shaker(), 
+    new Conductor({onload:()=>{
+        console.log('y');
+    }}), new Shaker()];
 //TODO: 首頁的按鈕名稱在這裡換。
 const names = ['shaker', 'gyro', 'conductor', 'balance'];
-
 initPage();
-
-function importAll(r) {
-    return r.keys().map(r);
-}
-
 function initPage() {
     $('#previmg').attr("src", arrow);
     for (let i in images) {
@@ -29,15 +33,16 @@ function initPage() {
         // button onclick
         $('#mode-'+i).click(function() {
             mode = i;
-            console.log('click', i);
+            // change to await
+            if (!dm.granted) dm.requestPermission();
             viewstep.showNext();
         });
+
     }
     Promise.all(Array.from(document.images).filter(img => !img.complete).map(img => new Promise(resolve => {img.onload = img.onerror = resolve; }))).then(() => {
         $('#selector div').removeClass('hidden');
     });
 }
-
 function createBtn(id, src, txt) {
     return `<div id=${id} class="square hidden">
         <div class="squarecontent">
@@ -49,9 +54,15 @@ function createBtn(id, src, txt) {
 
 $("#prev").click(function() {
     viewstep.showPrev();
-    //if is recording...
+    //TODO: check if is recording...
     progressStop();
+    modeList[mode].setEnable(false);
+    mode = -1;
 });
+
+function setupDM() {
+
+}
 
 /*** 
  * TODO: 
@@ -61,7 +72,8 @@ $("#prev").click(function() {
 */
 function selectMode () {
     console.log('select mode:', mode);
-    
+    modeList[mode].setEnable(true);
+    modeList[mode].setDM(dm);
     switch (mode) {
         case '0': //shaker
             show('.recorduse');

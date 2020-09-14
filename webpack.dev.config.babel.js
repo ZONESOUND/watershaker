@@ -7,6 +7,7 @@ module.exports = {
 	devtool: 'cheap-module-eval-source-map',
 	entry: [
 		'./src/index.js'
+		//'./src/timestretch.js'
 	],
 	output: {
 		path: path.join(__dirname, 'dist'),
@@ -37,6 +38,11 @@ module.exports = {
 				outputPath: "assets/",
                 publicPath: './assets',
 			}
+		},
+		{
+			test: /\.(mp3|m4a|wav|aif)$/,
+			exclude: /(node_modules|bower_components)/,
+			loader: 'file-loader?name=[name].[ext]'
 		}]
 	},
 	plugins: [

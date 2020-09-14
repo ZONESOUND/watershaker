@@ -10,7 +10,7 @@
     "deploy": "npm run predeploy && ./gh-deploy dist",
     "predeploy": "npm run build",
     "build": "webpack --mode production",
-    "dev": "webpack-dev-server --host 0.0.0.0 --config webpack.dev.config.babel.js --mode development",
+    "dev": "webpack-dev-server --https --host 0.0.0.0 --config webpack.dev.config.babel.js --mode development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
@@ -32,8 +32,11 @@
   },
   "dependencies": {
     "@zonesoundcreative/view-step": "0.0.6",
+    "@zonesoundcreative/web-devicemotion": "0.0.4",
     "jquery": "^3.5.0",
-    "progressbar.js": "^1.1.0"
+    "progressbar.js": "^1.1.0",
+    "tone": "^14.7.39",
+    "underscore": "^1.11.0"
   },
   "author": "",
   "license": "ISC"
