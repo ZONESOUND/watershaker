@@ -1,6 +1,6 @@
 import {Mode} from './mode';
 import {importAll, minmax, scale, json2Str, Avg} from './ussage';
-import {Player} from 'tone';
+import {Player, Transport} from 'tone';
 /***
  * 
  *  init=null,
@@ -24,6 +24,7 @@ export class Conductor extends Mode {
         if (!this.config.motion) this.config.motion = this.changeRate;
         this.loaded = 0;
         this.avg = new Avg(50);
+        
     }
 
     inInit() {
@@ -32,6 +33,13 @@ export class Conductor extends Mode {
         pathList.forEach(path => {
             this.players.push(new JazzPlayer(path, this.onload.bind(this)));
         });
+
+        Transport.scheduleRepeat((time) => {
+            this.players.forEach(p=>{
+                p.change();
+            })
+        }, "1n");
+        
     }
 
     onload() {
@@ -55,6 +63,7 @@ export class Conductor extends Mode {
         }
         fv = parseFloat(minmax(fv, tlow, tfi).toFixed(1));
         this.logHTML('biginstr', fv + '</br>' + minmax(fv, tlow, tfi) + '<br>' + json2Str(this.dm.orientVel));
+        Transport.bpm.value = 120*fv;
         this.players.forEach(p=>{
             p.changeRate(fv);
         })
@@ -71,13 +80,21 @@ export class Conductor extends Mode {
         this.players.forEach(p=>{
             p.stop();
         })
+        Transport.stop();
     }
 
     startEnable() {
         this.players.forEach(p=>{
             p.play();
         })
+        Transport.start();
+        // Transport.bpm.value = 120*0.6;
+        // this.players.forEach(p=>{
+        //     p.changeRate(0.6);
+        // })
     }
+
+    
 
 }
 
@@ -97,7 +114,8 @@ class JazzPlayer {
         this.soundPath.forEach(e => {
             let p = new Player(e.default, this.onload.bind(this)).toDestination();
             p.loop = true;
-            //p.fadeIn
+            p.fadeIn = "4n";
+            p.fadeOut = "4n";
             this.players.push(p);
         });
     }
@@ -123,6 +141,8 @@ class JazzPlayer {
     }
 
     change() {
+        if (Math.random() > 0.1) return;
+
         let r = Math.floor(Math.random()*this.players.length);
         this.players[this.current].stop();      
         this.play(r);
