@@ -31,6 +31,11 @@ module.exports = {
 				// 配置 name 屬性 (第二步)
 				name: '[name].[ext]',
 			}
+		},
+		{
+			test: /\.(mp3|m4a|wav|aif)$/,
+			exclude: /(node_modules|bower_components)/,
+			loader: 'file-loader?name=[name].[ext]'
 		}]
 	},
 	plugins: [
