@@ -3,19 +3,20 @@ export class Mode {
         this.fillConfig(config);
         this.enable = false;
         this.debug = true;
+        this.init();
     }
 
     fillConfig(config) {
         this.config = {
             init:null,
             end:null,
-            motion:null 
+            motion:null,
+            onload:null
         }
         this.config = {...this.config, ...config}
     }
 
     init() {
-        this.enable = true;
         this.inInit();
         //if (this.config.init) this.initFunc();
     }
@@ -29,13 +30,12 @@ export class Mode {
     end() {
         this.enable = false;
         this.inEnd();
-        //dispatchDevice({orientation: ()=>{return;}, motion: ()=>{return;}});
-        //if (this.motion.end) this.endFunc();
     }
 
     setEnable(enable) {
         this.enable = enable;
         if (enable) this.startEnable();
+        else this.end();
     }
 
     setDM(dm) {
@@ -48,6 +48,21 @@ export class Mode {
             alert(txt);
             this.debug = !stop;
         }
+    }
+
+    logHTML(id, txt) {
+        if (!this.debug) return;
+        document.getElementById(id).innerHTML = txt;
+
+    }
+
+    //TODO: put in dm
+    calcNorm(o) {
+        return Math.pow(o.pitch * o.pitch + o.roll * o.roll + o.yaw * o.yaw, 1/3);
+    }
+
+    calcAvg(o) {
+        return (o.pitch + o.roll + o.yaw)/3;
     }
 
     inEnd(){}

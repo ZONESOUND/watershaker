@@ -11,6 +11,7 @@ import arrow from './image.png';
 import {importAll} from './ussage';
 import {Conductor} from './conductor';
 import {Shaker} from './shaker';
+import {Balance} from './balance';
 import {dm} from './device';
 
 const images = importAll(require.context('./icons', false, /\.(png|jpe?g|svg)$/));
@@ -20,8 +21,10 @@ var viewstep = new viewStep('.step', 1, 2, {
 var mode = -1;
 var modeList = [new Shaker(), new Shaker(), 
     new Conductor({onload:()=>{
-        console.log('y');
-    }}), new Shaker()];
+        alert('conductor loaded');
+    }}), new Balance({onload:()=>{
+        alert('balance loaded');
+    }})];
 //TODO: 首頁的按鈕名稱在這裡換。
 const names = ['shaker', 'gyro', 'conductor', 'balance'];
 initPage();
