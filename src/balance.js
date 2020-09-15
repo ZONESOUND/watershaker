@@ -20,6 +20,7 @@ export class Balance extends Mode{
     }
 
     onload() {
+        this.loaded = true;
         if (this.config.onload) this.config.onload();
     }
 
@@ -33,7 +34,9 @@ export class Balance extends Mode{
 
     startEnable() {
         if (this.forest.loaded) {
-            this.forest.start();
+            console.log(this.forest);
+            this.forest.volume.rampTo(0, 1);
+            this.forest.start("+0");
             this.noise.start();
         }
     }
@@ -125,8 +128,10 @@ class Noise {
     }
 
     setVolume(v, time=0) {
-        if (this.drinking) this.drunksig.value = drunk(this.drunksig.value, 20, 100, 700);
-        if (Math.abs(this.prevV - v)>0.08) this.change();
+        if (v != 0) {
+            if (this.drinking) this.drunksig.value = drunk(this.drunksig.value, 20, 100, 700);
+            if (Math.abs(this.prevV - v)>0.08) this.change();
+        }
         //this.gain.gain.rampTo(v, time);
         this.gain.gain.value = v;
         this.prevV = v;

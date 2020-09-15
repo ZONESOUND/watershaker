@@ -43,7 +43,8 @@ export class Avg {
             sum += this.buffer[i];
         }
         //return sum + "<br>" + this.buffer.length + "<br>" + sum/this.buffer.length;
-        return sum / this.buffer.length;
+        let g = sum / this.buffer.length;
+        return g == Infinity ? this.buffer[(this.ind-1+this.size)%this.size] : g;
     }
 }
 

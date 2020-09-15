@@ -1,6 +1,7 @@
 import {RateTransposer, Stretch, SimpleFilter} from './library/soundtouch.bundle';
 import testsound from './sounds/test.m4a';
 import $ from 'jquery';
+
 class TimeStretch {
     constructor(soundurl, isTimestretch, context, callback=null) {
         this.soundurl = soundurl;
@@ -110,7 +111,8 @@ testS.changeSpeed(0.2);
 
 $('#try').click(function() {
     console.log('y');
-    node.disconnect(context.destination);
+    //node.disconnect(context.destination);
     node.connect(context.destination);
     //testS.play();
 })
+

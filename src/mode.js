@@ -4,6 +4,7 @@ export class Mode {
         this.enable = false;
         this.debug = true;
         this.init();
+        this.loaded = false;
     }
 
     fillConfig(config) {

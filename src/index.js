@@ -9,21 +9,26 @@ import {progressStop, setRecLength, setRecInstr} from './rec.js';
 import {show, hide} from './cssusage';
 import arrow from './image.png';
 import {importAll} from './ussage';
-import {Conductor} from './conductor';
+import {Conductor} from './conductor2';
 import {Shaker} from './shaker';
 import {Balance} from './balance';
 import {dm} from './device';
+import * as Tone from 'tone';
 
+var loading = false;
 const images = importAll(require.context('./icons', false, /\.(png|jpe?g|svg)$/));
 var viewstep = new viewStep('.step', 1, 2, {
-    2: selectMode
+    2: checkLoad,
+    3: selectMode
 });
 var mode = -1;
 var modeList = [new Shaker(), new Shaker(), 
     new Conductor({onload:()=>{
-        alert('conductor loaded');
+        //alert('conductor!');
+        if (loading) checkLoad();
     }}), new Balance({onload:()=>{
-        alert('balance loaded');
+        //alert('balance!');
+        if (loading) checkLoad();
     }})];
 //TODO: 首頁的按鈕名稱在這裡換。
 const names = ['shaker', 'gyro', 'conductor', 'balance'];
@@ -35,6 +40,7 @@ function initPage() {
         $('#selector').append(createBtn(`mode-${i}`, images[i].default, names[i]));
         // button onclick
         $('#mode-'+i).click(function() {
+            if (mode == -1) Tone.start();
             mode = i;
             // change to await
             if (!dm.granted) dm.requestPermission();
@@ -56,6 +62,7 @@ function createBtn(id, src, txt) {
 }
 
 $("#prev").click(function() {
+    viewstep.showPrev();
     viewstep.showPrev();
     //TODO: check if is recording...
     progressStop();
@@ -103,4 +110,11 @@ function selectMode () {
         default:
             break;
     }
+}
+
+function checkLoad() {
+    //alert(`${mode} ${modeList[mode].loaded}`);
+    loading = true;
+    if (modeList[mode].loaded) 
+        viewstep.showNext();
 }

@@ -1,6 +1,6 @@
 import {Mode} from './mode';
 import {importAll, minmax, scale, json2Str, Avg} from './ussage';
-import {Player, Transport, PitchShift} from 'tone';
+import {GrainPlayer, Transport, Gain} from 'tone';
 /***
  * 
  *  init=null,
@@ -22,9 +22,8 @@ export class Conductor extends Mode {
     constructor(config) { 
         super(config);
         if (!this.config.motion) this.config.motion = this.changeRate;
-        this.loaded = 0;
-        this.avg = new Avg(50);
-        
+        this.loadNum = 0;
+        this.avg = new Avg(20);
     }
 
     inInit() {
@@ -34,7 +33,7 @@ export class Conductor extends Mode {
         pathList.forEach(path => {
             i++;
             console.log(path, i<=2);
-            this.players.push(new JazzPlayer(path, false, this.onload.bind(this)));
+            this.players.push(new JazzPlayer(path, this.onload.bind(this)));
         });
 
         Transport.scheduleRepeat((time) => {
@@ -46,17 +45,18 @@ export class Conductor extends Mode {
     }
 
     onload() {
-        this.loaded++;
-        if (this.loaded == 4) {
+        console.log('on load!', this.loaded);
+        this.loadNum++;
+        if (this.loadNum == pathList.length) {
+            this.loaded = true;
             if (this.config.onload) this.config.onload();
         }
     }
 
     changeRate(v) {
-        console.log('change'); 
         let fv = 0;
-        let low = 15, mid = 80, high = 200;
-        let tlow = 0.4, tmid = 0.8, thigh = 1.1, tfi = 1.5;
+        let low = 50, mid = 90, high = 300;
+        let tlow = 0.3, tmid = 0.8, thigh = 1.1, tfi = 2;
         if (v < low) { // slow
             fv = scale(v, 0, low, tlow, tmid);
         } else if (v < mid) { // normal
@@ -65,7 +65,7 @@ export class Conductor extends Mode {
             fv = scale(v, mid, high, thigh, tfi);
         }
         fv = parseFloat(minmax(fv, tlow, tfi).toFixed(1));
-        this.logHTML('biginstr', fv + '</br>' + minmax(fv, tlow, tfi) + '<br>' + json2Str(this.dm.orientVel));
+        this.logHTML('biginstr', v + '</br>' + fv + '<br>' + json2Str(this.dm.orientVel));
         Transport.bpm.value = 120*fv;
         this.players.forEach(p=>{
             p.changeRate(fv);
@@ -73,9 +73,8 @@ export class Conductor extends Mode {
     }
 
     inMotion() {
-        let v = this.calcAvg(this.dm.orientVel);
+        let v = this.calcNorm(this.dm.orientVel);
         let av = this.avg.get(v);
-        //document.getElementById('biginstr').innerHTML = toString(this.dm.orientVel);
         this.changeRate(av);
     }
 
@@ -91,47 +90,41 @@ export class Conductor extends Mode {
             p.play();
         })
         Transport.start();
-        // Transport.bpm.value = 120*0.6;
-        // this.players.forEach(p=>{
-        //     p.changeRate(0.6);
-        // })
     }
 }
 
 class JazzPlayer {
-    constructor(soundPath, shift=true, onLoadCb = null) {
+    constructor(soundPath, onLoadCb = null) {
         this.soundPath = soundPath;
         this.players = [];
-        this.shift = shift;
-        this.shifts = [];
+        this.gains = [];
         this.current = 0;
         this.loaded = 0;
         this.onloadCb = onLoadCb;
         this.playbackRate = 1;
         this.initPlayer();
+        this.fade = "4n";
     }
 
     initPlayer() {
         this.soundPath.forEach(e => {
-            let p = new Player(e.default, this.onload.bind(this));
-            p.loop = true;
-            p.fadeIn = "4n";
-            p.fadeOut = "4n";
-
-            if (this.shift) {
-                let shift = new PitchShift(0).toDestination();
-                shift.set({windowSize: 0.03});
-                p.connect(shift);
-                this.shifts.push(shift);
-            } else {
-                p = p.toDestination();
-            }
+            let p = new GrainPlayer({
+                url: e.default,
+                loop: true,
+                grainSize: 0.1,
+                overlap: 0.05,
+                onload: this.onload.bind(this)
+            });
+            let gain = new Gain(0).toDestination();
+            p.connect(gain);
             this.players.push(p);
+            this.gains.push(gain);
         });
     }
 
     onload() {
-        this.loaded ++;
+        console.log('load!', this.loaded);
+        this.loaded++;
         if (this.loaded == this.soundPath.length) {
             if (this.onloadCb) this.onloadCb();
         }
@@ -140,30 +133,29 @@ class JazzPlayer {
     play(ind = this.current) {
         if (this.players[ind].loaded) {
             this.players[ind].playbackRate = this.playbackRate;
-            if (this.shift) this.shifts[ind].pitch = -12*Math.log2(this.playbackRate);
+            this.players[ind].detune = -12*Math.log2(this.playbackRate);
+            this.gains[ind].gain.rampTo(1, this.fade);
             this.players[ind].start();
             this.current = ind;
-            setTimeout(()=>{this.changeRate(1.5);}, 5000);
-            setTimeout(()=>{this.changeRate(0.5);}, 50000);
         }
     }
 
-    stop() {
-        this.players[this.current].stop();
+    stop(ind = this.current) {
+        this.gains[ind].gain.rampTo(0, this.fade);
+        this.players[ind].stop(this.fade);
     }
 
     change() {
         if (Math.random() > 0.1) return;
-
         let r = Math.floor(Math.random()*this.players.length);
-        this.players[this.current].stop();      
+        console.log(r);
+        this.stop();
         this.play(r);
     }
 
     changeRate(v) {
         this.playbackRate = v;
         this.players[this.current].playbackRate = v;
-        console.log('rate', v, -12*Math.log2(1/v));
-        if (this.shift) this.shifts[this.current].pitch = -12*Math.log2(v);
+        this.players[this.current].detune = -12*Math.log2(v);
     }
 }
