@@ -53,7 +53,7 @@ export class Conductor extends Mode {
     }
 
     changeRate(v) {
-        console.log('change'); 
+        //console.log('change'); 
         let fv = 0;
         let low = 15, mid = 80, high = 200;
         let tlow = 0.4, tmid = 0.8, thigh = 1.1, tfi = 1.5;

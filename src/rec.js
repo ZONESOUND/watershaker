@@ -1,10 +1,9 @@
 import $ from 'jquery';
 import ProgressBar from 'progressbar.js';
 import {recStart, recEnd, recRestart} from './recusage.js';
+import {nowMode} from './index.js';
 
-var recLength = 0;
-var recInstr = "test123";
-var progressbar = new ProgressBar.Circle('#recprogress', {
+export var progressbar = new ProgressBar.Circle('#recprogress', {
     strokeWidth: 3,
     easing: 'linear',
     duration: 3000,
@@ -22,30 +21,20 @@ var progressbar = new ProgressBar.Circle('#recprogress', {
         }
     }
 });
+console.log('progressbar init', progressbar);
 
-$("#rec").click(()=>{
-    progressbar.animate(0, {duration: 0}, ()=>{
-        progressbar.animate(1.0, {duration: recLength}, recEnd);
-    });
+$("#rec").on('click', ()=>{
     recStart();
-    
+    nowMode.record();
 });
-$("#rerec").click(()=>{
+
+$("#rerec").on('click', ()=>{
     recRestart();
 });
-$("#recprogress").click(progressStop);
 
-export function progressStop() {
-    progressbar.stop();
-}
-
-export function setRecLength(l) {
-    recLength = l;
-}
-
-export function setRecInstr(instr) {
-    $("#recinstr").text(instr);
-    //recInstr = instr;
+$("#recprogress").on('click', stopRecord);
+function stopRecord() {
+    nowMode.stopRecord();
 }
 
 function fillzero(num) {

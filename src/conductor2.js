@@ -45,7 +45,7 @@ export class Conductor extends Mode {
     }
 
     onload() {
-        console.log('on load!', this.loaded);
+        console.log('on load!');
         this.loadNum++;
         if (this.loadNum == pathList.length) {
             this.loaded = true;

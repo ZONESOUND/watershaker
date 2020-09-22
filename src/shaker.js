@@ -2,11 +2,10 @@ import {Mode, RecordMode} from './mode';
 
 export class Shaker extends RecordMode {
     
-    constructor(recorder, config) {
-        super(recorder, 400, config);
+    constructor(config) {
+        super(config);
+        this.config.recordTime = 400;
         this.enablePlay = true;
-        this.recordTime = 500;
-        this.enableMs = this.recordTime/4;
     }
 
     // initFunc() {

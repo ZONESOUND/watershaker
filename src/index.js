@@ -5,7 +5,7 @@ import './style.css';
 import viewStep from '@zonesoundcreative/view-step';
 import './rec.js';
 import {recRestart, recStart} from './recusage.js';
-import {progressStop, setRecLength, setRecInstr} from './rec.js';
+import {progressbar} from './rec.js';
 import {show, hide} from './cssusage';
 import arrow from './image.png';
 import {importAll} from './ussage';
@@ -15,6 +15,8 @@ import {Balance} from './balance';
 import {dm} from './device';
 import * as Tone from 'tone';
 
+import {checkMicPermission, recorder} from './mic.js';
+
 var loading = false;
 const images = importAll(require.context('./icons', false, /\.(png|jpe?g|svg)$/));
 var viewstep = new viewStep('.step', 1, 2, {
@@ -22,14 +24,32 @@ var viewstep = new viewStep('.step', 1, 2, {
     3: selectMode
 });
 var mode = -1;
-var modeList = [new Shaker(), new Shaker(), 
-    new Conductor({onload:()=>{
-        //alert('conductor!');
-        if (loading) checkLoad();
-    }}), new Balance({onload:()=>{
-        //alert('balance!');
-        if (loading) checkLoad();
-    }})];
+export var nowMode = null;
+var modeList = [
+    new Shaker({
+        recordTime: 1000,
+        recordInstr: 'Create and capture a short sound',
+        instr: 'SHAKE THE SOUND',
+    }), 
+    new Shaker({
+        recordTime: 30000,
+        recordInstr: 'Find and record a continuous sound',
+        instr: 'MODULATE THE SOUND WITH MOTIONS',
+    }), 
+    new Conductor({
+        instr: 'WAVE THE DEVICE TO DIRECT THE MUSIC',
+        onload:()=>{
+            if (loading) checkLoad();
+            //alert('conductor loaded');
+        }
+    }), 
+    new Balance({
+        instr: 'KEEP BALANCE',
+        onload:()=>{
+            if (loading) checkLoad();
+            //alert('balance loaded');
+        }
+    })];
 //TODO: 首頁的按鈕名稱在這裡換。
 const names = ['shaker', 'gyro', 'conductor', 'balance'];
 initPage();
@@ -39,12 +59,21 @@ function initPage() {
         console.log(images[i].default);
         $('#selector').append(createBtn(`mode-${i}`, images[i].default, names[i]));
         // button onclick
-        $('#mode-'+i).click(function() {
+        $('#mode-'+i).on('click', function() {
             if (mode == -1) Tone.start();
             mode = i;
+            nowMode = modeList[i];
             // change to await
-            if (!dm.granted) dm.requestPermission();
-            viewstep.showNext();
+            dm.requestPermission().then(()=>{
+                if (dm.granted) {
+                    viewstep.showNext();
+                } else {
+                    //handle
+                    alert('no');
+                    viewstep.showNext();
+                }
+            });
+            
         });
 
     }
@@ -61,54 +90,31 @@ function createBtn(id, src, txt) {
     </div>`;
 }
 
-$("#prev").click(function() {
+$("#prev").on('click', function() {
     viewstep.showPrev();
     viewstep.showPrev();
-    //TODO: check if is recording...
-    progressStop();
-    modeList[mode].setEnable(false);
+    nowMode.setEnable(false);
     mode = -1;
+    nowMode = null;
 });
 
-function setupDM() {
-
-}
-
-/*** 
- * TODO: 
- * setRecLength 寫錄音的時間（ms）
- * setRecInstr 寫未錄音時看到的文字
- * $("#biginstr").text 寫玩的指令
-*/
 function selectMode () {
     console.log('select mode:', mode);
-    modeList[mode].setEnable(true);
-    modeList[mode].setDM(dm);
-    switch (mode) {
-        case '0': //shaker
-            show('.recorduse');
-            setRecLength(1000);
-            setRecInstr("Create and capture a short sound");
-            $("#biginstr").text("SHAKE THE SOUND");
-            recRestart();
-            break;
-        case '1': //gyro
-            show('.recorduse');
-            setRecLength(30000);
-            setRecInstr("Find and record a continuous sound");
-            $("#biginstr").text("MODULATE THE SOUND WITH MOTIONS");
-            recRestart();
-            break;
-        case '2': //jazz
-            hide('.recorduse');
-            $("#biginstr").text("WAVE THE DEVICE TO DIRECT THE MUSIC");
-            break;
-        case '3': //silence
-            hide('.recorduse');
-            $("#biginstr").text("KEEP BALANCE");
-            break;
-        default:
-            break;
+    $("#biginstr").text(nowMode.getInstr());
+    $("#recinstr").text(nowMode.getRecordInstr());
+    nowMode.setDM(dm); //only one time?
+    nowMode.setEnable(true);
+    if (mode < 2) {
+        checkMicPermission().then(()=>{
+
+        })
+        show('.recorduse');
+        recRestart();
+        console.log(progressbar, recorder);
+        nowMode.setProgressBar(progressbar); //one time?
+        nowMode.setRecorder(recorder); //one time?
+    } else {
+        hide('.recorduse');
     }
 }
 

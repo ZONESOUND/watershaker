@@ -12,9 +12,20 @@ export class Mode {
             init:null,
             end:null,
             motion:null,
-            onload:null
+            onload:null,
+            instr: '',
+            recordInstr: '',
+            recordTime: 1000,
         }
         this.config = {...this.config, ...config}
+    }
+
+    getInstr() {
+        return this.config.instr;
+    }
+
+    getRecordInstr() {
+        return this.config.recordInstr;
     }
 
     init() {
@@ -35,7 +46,9 @@ export class Mode {
 
     setEnable(enable) {
         this.enable = enable;
-        if (enable) this.startEnable();
+        if (enable) {
+            this.startEnable();
+        }
         else this.end();
     }
 
@@ -73,12 +86,37 @@ export class Mode {
 }
 
 export class RecordMode extends Mode {
-    constructor(recorder, recordTime, config = {}) {
+    constructor(config = {}) {
         super(config);
+        this.recording = false;
+    }
+    setProgressBar(pb) {
+        this.progressBar = pb;
+    }
+    setRecorder(recorder) {
         this.recorder = recorder;
-        this.recordTime = recordTime;
     }
     getRecordLen() {
-        return this.recordTime;
+        return this.config.recordTime;
+    }
+    record() {
+        this.recording = true;
+        this.progressbar.animate(0, {duration: 0}, ()=>{
+            this.progressbar.animate(1.0, {duration: this.config.recordTime}, this.stopRecord);
+        });
+        this.recorder.record(true);
+    }
+    stopRecord() {
+        if (this.recording) {
+            this.recording = false;
+            this.progressbar.stop();
+            this.recorder.stop();
+        }
+    }
+    playRecord() {
+        this.recorder.play();
+    }
+    inEnd() {
+        this.stopRecord();
     }
 }
