@@ -47,8 +47,7 @@ function initPage() {
                     viewstep.showNext(true, true, 2);
                 } else {
                     //handle
-                    alert('no dm');
-                    viewstep.showNext(true, true, 2);
+                    alert('Enable Device Orientation For Best Experience');
                 }
             });
             
