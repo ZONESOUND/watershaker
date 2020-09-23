@@ -146,9 +146,9 @@ class JazzPlayer {
     }
 
     change() {
-        if (Math.random() > 0.1) return;
+        if (Math.random() > 0.2) return;
         let r = Math.floor(Math.random()*this.players.length);
-        console.log(r);
+        //console.log(r);
         this.stop();
         this.play(r);
     }

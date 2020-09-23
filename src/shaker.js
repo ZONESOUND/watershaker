@@ -1,3 +1,4 @@
+import { trim } from 'jquery';
 import {RecordMode} from './mode';
 import {Avg, json2Str, minmax} from './ussage';
 
@@ -5,10 +6,16 @@ export class Shaker extends RecordMode {
     
     constructor(config) {
         super(config);
-        if(!this.config.recordTime) this.config.recordTime = 400;
+        if(!this.config.recordTime) this.config.recordTime = 700;
         this.enablePlay = true;
         this.avg = new Avg(10);
         this.enableMs = this.config.recordTime/4;
+    }
+    
+    afterStop() {
+        this.trimBuffer(this.recorder.getBuffer());
+        this.bufferPlayer.playBuffer(this.buffer);
+
     }
 
     inMotion() {
@@ -29,7 +36,7 @@ export class Shaker extends RecordMode {
      
     playImmediately() {
         if (!this.enablePlay) return;
-        this.recorder.play();
+        this.bufferPlayer.playBuffer(this.buffer);        
         this.enablePlay = false;
         setTimeout((()=>{
             this.enablePlay = true;

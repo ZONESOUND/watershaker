@@ -4,7 +4,7 @@ export class Mode {
     constructor(config={}) {
         this.fillConfig(config);
         this.enable = false;
-        this.debug = true;
+        this.debug = false;
         this.init();
         this.loaded = false;
     }
@@ -84,6 +84,7 @@ export class Mode {
     inInit(){}
     inMotion(){}
     startEnable(){}
+    enableSound(){}
 }
 
 export class RecordMode extends Mode {
@@ -98,7 +99,7 @@ export class RecordMode extends Mode {
         this.progressBar = pb;
     }
     setRecorder(recorder) {
-        console.log('set recorder', recorder);
+        //console.log('set recorder', recorder);
         this.recorder = recorder;
         this.bufferPlayer = new BufferPlayer(this.recorder.getContext());
     }
@@ -126,18 +127,25 @@ export class RecordMode extends Mode {
             this.recording = false;
             this.progressBar.stop();
             this.recorder.stop();
-            if (this.recorder.getBuffer().length == 0) alert('refresh page!');
             //setTimeout(()=>{this.playRecord()}, 1000);
             if (this.afterStop) this.afterStop();
             this.playing = true;
         }
     }
     playRecord() {
-        console.log('play!');
         this.recorder.play();
     }
 
     inEnd() {
         this.stopRecord();
+    }
+
+    trimBuffer(buffer, threshold=0.01) {
+        let i=0;
+        for(i=0; i<buffer.length; i++) {
+            if (Math.abs(buffer[i]) > threshold) break;
+        }
+        if (buffer.length - i < 1000) this.buffer = buffer;
+        else this.buffer = buffer.slice(i);
     }
 }

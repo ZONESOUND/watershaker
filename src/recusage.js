@@ -30,6 +30,12 @@ function hideProgress() {
     hide("#rectime");
 }
 
+export function showInstrOnly() {
+    hide("#recarea");
+    show("#biginstr");
+    hide("#rerec")
+}
+
 function showInstr() {
     //hiderec
     hide("#recarea");

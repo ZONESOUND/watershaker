@@ -4,7 +4,7 @@ import $ from 'jquery';
 import './style.css';
 import viewStep from '@zonesoundcreative/view-step';
 import './rec.js';
-import {recRestart, recStart} from './recusage.js';
+import {recRestart, showInstrOnly} from './recusage.js';
 import {progressbar} from './rec.js';
 import {show, hide} from './cssusage';
 import arrow from './image.png';
@@ -15,11 +15,10 @@ import {Balance} from './balance';
 import {Gyro} from './gyro';
 import {dm} from './device';
 import * as Tone from 'tone';
-
 import {checkMicPermission, recorder, micPermission} from './mic.js';
 
 var loading = false;
-const images = importAll(require.context('./icons', false, /\.(png|jpe?g|svg)$/));
+const images = importAll(require.context('./icons/png', false, /\.(png|jpe?g|svg)$/));
 
 const names = ['shaker', 'gyro', 'conductor', 'balance'];
 var viewstep = new viewStep('.step', 1, 2, {
@@ -28,31 +27,7 @@ var viewstep = new viewStep('.step', 1, 2, {
 });
 var mode = -1;
 export var nowMode = null;
-var modeList = [
-    new Shaker({
-        recordTime: 600,
-        recordInstr: 'Create and capture a short sound',
-        instr: 'SHAKE THE SOUND',
-    }), 
-    new Gyro({
-        recordTime: 10000,
-        recordInstr: 'Find and record a continuous sound',
-        instr: 'MODULATE THE SOUND WITH MOTIONS',
-    }), 
-    new Conductor({
-        instr: 'WAVE THE DEVICE TO DIRECT THE MUSIC',
-        onload:()=>{
-            if (loading) checkLoad();
-            //alert('conductor loaded');
-        }
-    }), 
-    new Balance({
-        instr: 'KEEP BALANCE',
-        onload:()=>{
-            if (loading) checkLoad();
-            //alert('balance loaded');
-        }
-    })];
+var modeList;
 initPage();
 function initPage() {
     $('#previmg').attr("src", arrow);
@@ -60,8 +35,10 @@ function initPage() {
         console.log(images[i].default);
         $('#selector').append(createBtn(`mode-${i}`, images[i].default, names[i]));
         // button onclick
-        $('#mode-'+i).on('click', function() {
-            if (mode == -1) Tone.start();
+        $('#mode-'+i).on('click', async function() {
+            if (mode == -1) {
+                Tone.context.resume();
+            }
             mode = i;
             nowMode = modeList[i];
             // change to await
@@ -80,8 +57,38 @@ function initPage() {
     }
     Promise.all(Array.from(document.images).filter(img => !img.complete).map(img => new Promise(resolve => {img.onload = img.onerror = resolve; }))).then(() => {
         $('#selector div').removeClass('hidden');
+        initModeList();
     });
 }
+
+function initModeList() {
+    modeList = [
+        new Shaker({
+            recordTime: 600,
+            recordInstr: 'Create and capture a short sound',
+            instr: 'SHAKE THE SOUND',
+        }), 
+        new Gyro({
+            recordTime: 10000,
+            recordInstr: 'Find and record a continuous sound',
+            instr: 'MODULATE THE SOUND WITH MOTIONS',
+        }), 
+        new Conductor({
+            instr: 'WAVE THE DEVICE TO DIRECT THE MUSIC',
+            onload:()=>{
+                if (loading) checkLoad();
+                //alert('conductor loaded');
+            }
+        }), 
+        new Balance({
+            instr: 'KEEP BALANCE',
+            onload:()=>{
+                if (loading) checkLoad();
+                //alert('balance loaded');
+            }
+    })];
+}
+
 function createBtn(id, src, txt) {
     return `<div id=${id} class="square hidden">
         <div class="squarecontent">
@@ -113,6 +120,7 @@ function selectMode () {
         if (nowMode.recorder == null) nowMode.setRecorder(recorder); //one time?
     } else {
         hide('.recorduse');
+        showInstrOnly();
     }
 }
 
@@ -125,9 +133,7 @@ function checkLoad() {
                 if (micPermission) {
                     viewstep.showNext(true, true, 3);
                 } else {
-                    //handle~
                 }
-                console.log('mic permission'+micPermission);
             })
         } else {
             viewstep.showNext(true, true, 3);

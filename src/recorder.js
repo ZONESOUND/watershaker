@@ -12,7 +12,6 @@ export default class Recorder {
     }
 
     init() {
-        console.log('recorder constructor');
         this.initProcessor();
         this.connectAll();
     }
@@ -59,43 +58,43 @@ export default class Recorder {
         return this.#recording;
     }
 
-    play(loop=false, fade={in:0, out:0}) {
+    // play(loop=false, fade={in:0, out:0}) {
 
-        let playSource = this.context.createBufferSource();
-        let newBuffer = this.context.createBuffer(1, this.recordedBuffer.length, this.context.sampleRate);
-        newBuffer.getChannelData(0).set(this.recordedBuffer);
-        this.gainNode = this.context.createGain();
-        //exponentialRampToValueAtTime
-        this.gainNode.gain.value = 0;
-        this.gainNode.gain.exponentialRampToValueAtTime(1, this.context.currentTime+fade.in);
-        console.log('buffer duration'+newBuffer.duration);
-        setTimeout((()=>{
-            this.gainNode.gain.exponentialRampToValueAtTime(0, this.context.currentTime+fade.out)}).bind(this)
-            ,(newBuffer.duration-fade.out)*1000);
-        playSource.buffer = newBuffer;
-        playSource.loop = loop;
-        playSource.connect(this.gainNode);
-        this.gainNode.connect(this.context.destination);
-        playSource.start();
-        playSource.onended = function() {
-            playSource.disconnect(this.gainNode);
-        }
-        this.playSource = playSource;
-        console.log('gain!', this.gainNode);
-    }
+    //     let playSource = this.context.createBufferSource();
+    //     let newBuffer = this.context.createBuffer(1, this.recordedBuffer.length, this.context.sampleRate);
+    //     newBuffer.getChannelData(0).set(this.recordedBuffer);
+    //     this.gainNode = this.context.createGain();
+    //     //exponentialRampToValueAtTime
+    //     this.gainNode.gain.value = 0;
+    //     this.gainNode.gain.exponentialRampToValueAtTime(1, this.context.currentTime+fade.in);
 
-    setPlayGain(v) {
-        //console.log(this.gainNode);
-        this.gainNode.gain.value = v;
-    }
+    //     setTimeout((()=>{
+    //         this.gainNode.gain.exponentialRampToValueAtTime(0, this.context.currentTime+fade.out)}).bind(this)
+    //         ,(newBuffer.duration-fade.out)*1000);
+    //     playSource.buffer = newBuffer;
+    //     playSource.loop = loop;
+    //     playSource.connect(this.gainNode);
+    //     this.gainNode.connect(this.context.destination);
+    //     playSource.start();
+    //     playSource.onended = function() {
+    //         playSource.disconnect(this.gainNode);
+    //     }
+    //     this.playSource = playSource;
+    //     console.log('gain!', this.gainNode);
+    // }
 
-    setPlayRate(v) {
-        this.playSource.playbackRate.value = v;
-    }
+    // setPlayGain(v) {
+    //     //console.log(this.gainNode);
+    //     this.gainNode.gain.value = v;
+    // }
 
-    stopPlay() {
-        this.playSource.disconnect(this.gainNode);
-    }
+    // setPlayRate(v) {
+    //     this.playSource.playbackRate.value = v;
+    // }
+
+    // stopPlay() {
+    //     this.playSource.disconnect(this.gainNode);
+    // }
 
     getContext() {
         return this.context;
@@ -121,7 +120,7 @@ export class BufferPlayer {
         let newBuffer = this.context.createBuffer(1, this.buffer.length, this.context.sampleRate);
         newBuffer.getChannelData(0).set(this.buffer);
         this.gainNode.gain.setValueAtTime(1, this.context.currentTime);
-        console.log('ramp in '+ this.context.currentTime+', '+fade.in);
+        //console.log('ramp in '+ this.context.currentTime+', '+fade.in);
         // this.getValue();
         // this.gainNode.gain.linearRampToValueAtTime(1.0, this.context.currentTime+fade.in);
         // setTimeout(this.getValue.bind(this), 300);
@@ -144,12 +143,8 @@ export class BufferPlayer {
         }).bind(this);
         this.playSource = playSource;
     }
-    getValue() {
-        console.log(this.gainNode.gain.value);
-    }
 
     setPlayGain(v) {
-        console.log(v, this.gainNode.gain.value);
         this.gainNode.gain.setValueAtTime(v, this.context.currentTime);
 
     }
