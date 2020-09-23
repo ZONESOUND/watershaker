@@ -58,11 +58,11 @@ html, body {
 }
 
 .squarecontent img{
-    width: 60%;
+    width: 65%;
 }
 
 .squarecontent div {
-    margin-top: 10px;
+    margin-top: 2px;
 }
 
 #selector {
