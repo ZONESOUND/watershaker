@@ -1,0 +1,22 @@
+window.addEventListener('resize', changeSize);
+
+function changeSize() {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    console.log('vh', vh);
+    putSelector();
+}
+changeSize();
+
+export function putSelector(){
+    let vh = window.innerHeight;
+    let f = document.getElementById('footer').clientHeight;
+    if (f == 0) return;
+    let t = document.getElementById('title').clientHeight;
+    let st = document.getElementById('subtitle').clientHeight;
+    let s = document.getElementById('selector').clientHeight;
+    let margin = (vh - (t+st+s+f))/3 * 0.01;
+    document.documentElement.style.setProperty('--sub', `${margin}px`);
+    console.log(margin);
+}
+

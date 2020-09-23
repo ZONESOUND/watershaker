@@ -28,11 +28,9 @@ export class Conductor extends Mode {
 
     inInit() {
         this.players = [];
-        console.log(pathList);
         let i=0;
         pathList.forEach(path => {
             i++;
-            console.log(path, i<=2);
             this.players.push(new JazzPlayer(path, this.onload.bind(this), i<=3));
         });
 
@@ -45,7 +43,6 @@ export class Conductor extends Mode {
     }
 
     onload() {
-        console.log('on load!');
         this.loadNum++;
         if (this.loadNum == pathList.length) {
             this.loaded = true;
@@ -94,7 +91,7 @@ export class Conductor extends Mode {
 }
 
 class JazzPlayer {
-    constructor(soundPath, onLoadCb = null, grain=false) {
+    constructor(soundPath, onLoadCb = null, grain=false, empty=false) {
         this.soundPath = soundPath;
         this.players = [];
         this.gains = [];
@@ -103,6 +100,7 @@ class JazzPlayer {
         this.onloadCb = onLoadCb;
         this.playbackRate = 1;
         this.grain = grain;
+        this.empty = empty;
         this.initPlayer();
         this.fade = "4n";
         this.volume = 0.7;
@@ -132,7 +130,6 @@ class JazzPlayer {
     }
 
     onload() {
-        console.log('load!', this.loaded);
         this.loaded++;
         if (this.loaded == this.soundPath.length) {
             if (this.onloadCb) this.onloadCb();
@@ -156,9 +153,11 @@ class JazzPlayer {
 
     change() {
         if (Math.random() > 0.2) return;
-        let r = Math.floor(Math.random()*this.players.length);
-        //console.log(r);
         this.stop();
+
+        if (this.empty && Math.random() > 0.88) return;
+
+        let r = Math.floor(Math.random()*this.players.length);
         this.play(r);
     }
 

@@ -1,15 +1,17 @@
 html, body {
     width: 100%;
-    height: 100%;
     text-align: center;
     color: white;
     background-color: black;
-    
+    height: 100%;
+    font-family: 'Nunito Sans', 'Noto Sans TC', sans-serif;
 }
 
 .container {
     position: relative;
-    min-height: 100vh;
+    height: 100vh; /* Fallback for browsers that do not support Custom Properties */
+    height: calc(var(--vh, 1vh) * 100);
+    /* min-height: 100vh; */
 }
 
 #firstpage {
@@ -18,11 +20,13 @@ html, body {
 
 #title {
     text-align: center;
+    /* font-style: italic; */
+    font-weight: 600;
 }
 
 #subtitle {
     text-align: center;
-    margin-bottom: 45px;
+    margin-bottom: calc(var(--sub, 0.1vh) * 100);
 }
 
 .square {
@@ -152,6 +156,7 @@ html, body {
     padding: 20px;
     font-size: 2em;
     line-height: 3rem;
+    font-style:italic
 }
 
 .center {

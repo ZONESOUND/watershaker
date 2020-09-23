@@ -2,6 +2,8 @@
 
 import $ from 'jquery';
 import './style.css';
+import './pageHeight';
+import {putSelector} from'./pageHeight';
 import viewStep from '@zonesoundcreative/view-step';
 import './rec.js';
 import {recRestart, showInstrOnly} from './ussage/recusage.js';
@@ -16,11 +18,12 @@ import {Gyro} from './mode/gyro';
 import {dm} from './device';
 import * as Tone from 'tone';
 import {checkMicPermission, recorder, micPermission} from './mic.js';
+import {showDialog} from './dialog';
 
 var loading = false;
 const images = importAll(require.context('./img/png', false, /\.(png|jpe?g|svg)$/));
 
-const names = ['shaker', 'gyro', 'conductor', 'balance'];
+const names = ['Shaker', 'Gyro', 'Conductor', 'Balance'];
 var viewstep = new viewStep('.step', 1, 2, {
     2: checkLoad,
     3: selectMode
@@ -36,7 +39,7 @@ function initPage() {
         $('#selector').append(createBtn(`mode-${i}`, images[i].default, names[i]));
         // button onclick
         $('#mode-'+i).on('click', async function() {
-            if (mode == -1) {
+            if (mode == -1) { 
                 Tone.context.resume();
             }
             mode = i;
@@ -46,8 +49,9 @@ function initPage() {
                 if (dm.granted) {
                     viewstep.showNext(true, true, 2);
                 } else {
-                    //handle
-                    alert('Enable Device Orientation For Best Experience');
+                    //TODO: handle
+                    viewstep.showNext(true, true, 2);
+                    showDialog('For the full experience, please accept orientation permission.');
                 }
             });
             
@@ -56,6 +60,7 @@ function initPage() {
     }
     Promise.all(Array.from(document.images).filter(img => !img.complete).map(img => new Promise(resolve => {img.onload = img.onerror = resolve; }))).then(() => {
         $('#selector div').removeClass('hidden');
+        putSelector();
         initModeList();
     });
 }
@@ -132,6 +137,7 @@ function checkLoad() {
                 if (micPermission) {
                     viewstep.showNext(true, true, 3);
                 } else {
+                    viewstep.showPrev();
                 }
             })
         } else {

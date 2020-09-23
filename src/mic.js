@@ -1,4 +1,5 @@
 import Recorder from './recorder';
+import {showDialog} from './dialog';
 
 var recorder;
 const AudioContext = window.AudioContext|| window.webkitAudioContext ||      window.mozAudioContext || window.msAudioContext;
@@ -6,6 +7,7 @@ const context = new AudioContext();
 var mediaStream, source;
 var micPermission = false;
 var testMic = false;
+var testTime = 50;
 
 let olderBrowser = function() {
     // Older browsers might not implement mediaDevices at all, so we set an empty object first
@@ -42,20 +44,19 @@ let grantMicPermission = async () => {
     try {
         mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true});
         initRecord();
+        await wait(testTime + 5);
     } catch(err) {
         //handle hint page here
-        //alert(err);
+        showDialog('To record samples, please turn on microphone.');
         console.error(err);
         return false;
     }
-    return true;
+    return testMic && true;
 }
 
 let checkMicPermission = async () => {
     if (!micPermission) {
         micPermission = await grantMicPermission();
-    } else {
-        console.log('no!');
     }
 }
 
@@ -64,7 +65,6 @@ let initRecord = function() {
     source = context.createMediaStreamSource(mediaStream);
     recorder = new Recorder(source);
     recorder.init();
-    console.log('init record almost');
     testRecorder();
 };
 
@@ -73,15 +73,19 @@ let testRecorder = ()=> {
     setTimeout(()=>{
         recorder.stop();
         let buffer = recorder.getBuffer();
-        console.log(buffer);
-        console.log(mediaStream);
         if (buffer.length != 0) {
             testMic = true;
         } else {
-            //TODO:handle...
-            alert('[MICROPHONE] something went wrong');
+            showDialog('There seems to be an issue with the microphone, please reload the page.');
+            testMic = false;
         }
-    }, 50);
+    }, testTime);
 }
 
-export {checkMicPermission, recorder, micPermission};
+async function wait(ms) {
+    return new Promise(resolve => {
+      setTimeout(resolve, ms);
+    });
+}
+
+export {checkMicPermission, recorder, micPermission, testMic};
