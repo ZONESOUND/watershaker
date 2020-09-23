@@ -4,13 +4,39 @@ html, body {
     color: white;
     background-color: black;
     height: 100%;
+    line-height: 1.5;
     font-family: 'Nunito Sans', 'Noto Sans TC', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0;
+}
+
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+
+.mt-1, .my-1 {
+    margin-top: .25rem!important;
+}
+
+h4 {
+    font-size: 1.5rem;
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-top: 0;
+    margin-bottom: .5rem;
 }
 
 .container {
     position: relative;
     height: 100vh; /* Fallback for browsers that do not support Custom Properties */
     height: calc(var(--vh, 1vh) * 100);
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
     /* min-height: 100vh; */
 }
 
