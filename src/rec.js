@@ -1,6 +1,5 @@
 import $ from 'jquery';
 import ProgressBar from 'progressbar.js';
-import {recStart, recEnd, recRestart} from './recusage.js';
 import {nowMode} from './index.js';
 
 export var progressbar = new ProgressBar.Circle('#recprogress', {
@@ -24,12 +23,11 @@ export var progressbar = new ProgressBar.Circle('#recprogress', {
 console.log('progressbar init', progressbar);
 
 $("#rec").on('click', ()=>{
-    recStart();
     nowMode.record();
 });
 
 $("#rerec").on('click', ()=>{
-    recRestart();
+    nowMode.restart();
 });
 
 $("#recprogress").on('click', stopRecord);

@@ -6,7 +6,7 @@ import forest from './sounds/forest1.mp3';
 export class Balance extends Mode{
     constructor(config) {
         super(config);
-        if (!this.config.motion) this.config.motion = this.changeRate;
+        //if (!this.config.motion) this.config.motion = this.changeRate;
     }
 
     inInit() {
@@ -149,7 +149,7 @@ class Noise {
         //this.crusher.bits = randomMore(this.crusher.bits, 4, 1, 16);
         this.crusher.bits = this.preset.crusher[r];
         this.multfactor.value = this.preset.multfactor[r];
-        this.filter.frequency = this.preset.frequency[r];
+        //this.filter.frequency = this.preset.frequency[r];
     }
 
 }

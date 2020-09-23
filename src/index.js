@@ -12,13 +12,16 @@ import {importAll} from './ussage';
 import {Conductor} from './conductor2';
 import {Shaker} from './shaker';
 import {Balance} from './balance';
+import {Gyro} from './gyro';
 import {dm} from './device';
 import * as Tone from 'tone';
 
-import {checkMicPermission, recorder} from './mic.js';
+import {checkMicPermission, recorder, micPermission} from './mic.js';
 
 var loading = false;
 const images = importAll(require.context('./icons', false, /\.(png|jpe?g|svg)$/));
+
+const names = ['shaker', 'gyro', 'conductor', 'balance'];
 var viewstep = new viewStep('.step', 1, 2, {
     2: checkLoad,
     3: selectMode
@@ -27,12 +30,12 @@ var mode = -1;
 export var nowMode = null;
 var modeList = [
     new Shaker({
-        recordTime: 1000,
+        recordTime: 600,
         recordInstr: 'Create and capture a short sound',
         instr: 'SHAKE THE SOUND',
     }), 
-    new Shaker({
-        recordTime: 30000,
+    new Gyro({
+        recordTime: 10000,
         recordInstr: 'Find and record a continuous sound',
         instr: 'MODULATE THE SOUND WITH MOTIONS',
     }), 
@@ -50,8 +53,6 @@ var modeList = [
             //alert('balance loaded');
         }
     })];
-//TODO: 首頁的按鈕名稱在這裡換。
-const names = ['shaker', 'gyro', 'conductor', 'balance'];
 initPage();
 function initPage() {
     $('#previmg').attr("src", arrow);
@@ -66,11 +67,11 @@ function initPage() {
             // change to await
             dm.requestPermission().then(()=>{
                 if (dm.granted) {
-                    viewstep.showNext();
+                    viewstep.showNext(true, true, 2);
                 } else {
                     //handle
-                    alert('no');
-                    viewstep.showNext();
+                    alert('no dm');
+                    viewstep.showNext(true, true, 2);
                 }
             });
             
@@ -105,14 +106,11 @@ function selectMode () {
     nowMode.setDM(dm); //only one time?
     nowMode.setEnable(true);
     if (mode < 2) {
-        checkMicPermission().then(()=>{
-
-        })
         show('.recorduse');
         recRestart();
         console.log(progressbar, recorder);
         nowMode.setProgressBar(progressbar); //one time?
-        nowMode.setRecorder(recorder); //one time?
+        if (nowMode.recorder == null) nowMode.setRecorder(recorder); //one time?
     } else {
         hide('.recorduse');
     }
@@ -121,6 +119,18 @@ function selectMode () {
 function checkLoad() {
     //alert(`${mode} ${modeList[mode].loaded}`);
     loading = true;
-    if (modeList[mode].loaded) 
-        viewstep.showNext();
+    if (modeList[mode].loaded){ 
+        if (mode < 2) {
+            checkMicPermission().then(()=>{
+                if (micPermission) {
+                    viewstep.showNext(true, true, 3);
+                } else {
+                    //handle~
+                }
+                console.log('mic permission'+micPermission);
+            })
+        } else {
+            viewstep.showNext(true, true, 3);
+        }   
+    }
 }

@@ -1,52 +1,39 @@
-import {Mode, RecordMode} from './mode';
+import {RecordMode} from './mode';
+import {Avg, json2Str, minmax} from './ussage';
 
 export class Shaker extends RecordMode {
     
     constructor(config) {
         super(config);
-        this.config.recordTime = 400;
+        if(!this.config.recordTime) this.config.recordTime = 400;
         this.enablePlay = true;
+        this.avg = new Avg(10);
+        this.enableMs = this.config.recordTime/4;
     }
 
-    // initFunc() {
-    //     //super.init()
-    //     console.log('shaker init');
-    //     dispatchDevice({motion: this.playWhenAcc}, this);
-    // }
+    inMotion() {
+        if (!this.playing) return;
+        //console.log('in!', this.dm);
+        let a = minmax(this.dm.orientAcc.yaw, -100000, 100000);
+        let aa = this.avg.get(a);
+        this.playWhenAcc(a, aa);
+    }
 
-    // playWhenAcc(event, self) {
+    playWhenAcc(a, aa) {
+        this.logHTML('biginstr', a.toFixed(0) + '<br>' + aa.toFixed(0) + '<br>' + json2Str(this.dm.orientAcc));
 
-    //     // if (event.acceleration.z > 5 || event.acceleration.x>5 || event.acceleration.y>5) {
-    //     //     self.playImmediately();
-    //     // }
-    //     let a = event.acceleration.z*event.acceleration.z + 
-    //     event.acceleration.x+event.acceleration.x +
-    //     event.acceleration.y+event.acceleration.z;
-
-    //     if (a > 45) {
-    //         self.playImmediately();
-    //     }
-    // }
-    playWhenAcc(dm) {
-
-        // if (event.acceleration.z > 5 || event.acceleration.x>5 || event.acceleration.y>5) {
-        //     self.playImmediately();
-        // }
-        let a = dm.orientAcc.z*dm.orientAcc.z + 
-        dm.orientAcc.x+dm.orientAcc.x +
-        dm.orientAcc.y+dm.orientAcc.z;
-
-        if (a > 45) {
-            self.playImmediately();
+        if (a > 0 && a > aa * 20 && a > 3000) {
+            this.playImmediately();
         }
     }
      
     playImmediately() {
+        if (!this.enablePlay) return;
         this.recorder.play();
         this.enablePlay = false;
-        setTimeout(()=>{
+        setTimeout((()=>{
             this.enablePlay = true;
-        }, this.enableMs);
+        }).bind(this), this.enableMs);
     }
     
 }

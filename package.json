@@ -31,8 +31,7 @@
     "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
-    "@zonesoundcreative/view-step": "0.0.6",
-    "@zonesoundcreative/web-devicemotion": "0.0.4",
+    "@zonesoundcreative/view-step": "0.0.8",
     "jquery": "^3.5.0",
     "ola-ts": "^1.0.8",
     "progressbar.js": "^1.1.0",

@@ -1,3 +1,5 @@
+import {recStart, recEnd, recRestart} from './recusage.js';
+import {BufferPlayer} from './recorder';
 export class Mode {    
     constructor(config={}) {
         this.fillConfig(config);
@@ -15,7 +17,6 @@ export class Mode {
             onload:null,
             instr: '',
             recordInstr: '',
-            recordTime: 1000,
         }
         this.config = {...this.config, ...config}
     }
@@ -89,33 +90,53 @@ export class RecordMode extends Mode {
     constructor(config = {}) {
         super(config);
         this.recording = false;
+        this.loaded = true;
+        this.recorder = null;
+        this.playing = false;
     }
     setProgressBar(pb) {
         this.progressBar = pb;
     }
     setRecorder(recorder) {
+        console.log('set recorder', recorder);
         this.recorder = recorder;
+        this.bufferPlayer = new BufferPlayer(this.recorder.getContext());
     }
     getRecordLen() {
         return this.config.recordTime;
     }
+    restart() {
+        recRestart();
+        this.playing = false;
+        this.bufferPlayer.stop();
+    }
     record() {
         this.recording = true;
-        this.progressbar.animate(0, {duration: 0}, ()=>{
-            this.progressbar.animate(1.0, {duration: this.config.recordTime}, this.stopRecord);
-        });
+        recStart();
+        console.log('record', this.recorder);
+        
+        this.progressBar.animate(0, {duration: 0}, (()=>{
+            this.progressBar.animate(1.0, {duration: this.config.recordTime}, this.stopRecord.bind(this));
+        }).bind(this));
         this.recorder.record(true);
     }
     stopRecord() {
         if (this.recording) {
+            recEnd();
             this.recording = false;
-            this.progressbar.stop();
+            this.progressBar.stop();
             this.recorder.stop();
+            if (this.recorder.getBuffer().length == 0) alert('refresh page!');
+            //setTimeout(()=>{this.playRecord()}, 1000);
+            if (this.afterStop) this.afterStop();
+            this.playing = true;
         }
     }
     playRecord() {
+        console.log('play!');
         this.recorder.play();
     }
+
     inEnd() {
         this.stopRecord();
     }

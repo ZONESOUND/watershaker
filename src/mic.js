@@ -5,6 +5,7 @@ const AudioContext = window.AudioContext|| window.webkitAudioContext ||      win
 const context = new AudioContext();
 var mediaStream, source;
 var micPermission = false;
+var testMic = false;
 
 let olderBrowser = function() {
     // Older browsers might not implement mediaDevices at all, so we set an empty object first
@@ -39,8 +40,9 @@ let olderBrowser = function() {
 let grantMicPermission = async () => {
     olderBrowser();
     try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true});
         initRecord();
+        console.log('ya');
     } catch(err) {
         //handle hint page here
         alert(err);
@@ -53,8 +55,9 @@ let grantMicPermission = async () => {
 let checkMicPermission = async () => {
     if (!micPermission) {
         micPermission = await grantMicPermission();
+    } else {
+        console.log('no!');
     }
-    return micPermission;
 }
 
 let initRecord = function() {
@@ -62,6 +65,24 @@ let initRecord = function() {
     source = context.createMediaStreamSource(mediaStream);
     recorder = new Recorder(source);
     recorder.init();
+    console.log('init record almost');
+    testRecorder();
 };
 
-export {checkMicPermission, recorder};
+let testRecorder = ()=> {
+    recorder.record(true);
+    setTimeout(()=>{
+        recorder.stop();
+        let buffer = recorder.getBuffer();
+        console.log(buffer);
+        console.log(mediaStream);
+        if (buffer.length != 0) {
+            testMic = true
+        } else {
+            //TODO:handle...
+            alert('[MICROPHONE] something went wrong');
+        }
+    }, 50);
+}
+
+export {checkMicPermission, recorder, micPermission};

@@ -38,6 +38,7 @@ export class Avg {
     }
 
     calcAvg() {
+        if (this.buffer.length == 0) return 0;
         let sum = 0;
         for (let i=0; i<this.buffer.length; i++) {
             sum += this.buffer[i];
