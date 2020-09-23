@@ -1,4 +1,4 @@
-import {Mode} from './mode';
+import {Mode} from './mode.js';
 import {importAll, minmax, scale, json2Str, Avg} from './ussage';
 import {Player, Transport, PitchShift} from 'tone';
 /***

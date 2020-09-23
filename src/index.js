@@ -4,21 +4,21 @@ import $ from 'jquery';
 import './style.css';
 import viewStep from '@zonesoundcreative/view-step';
 import './rec.js';
-import {recRestart, showInstrOnly} from './recusage.js';
+import {recRestart, showInstrOnly} from './ussage/recusage.js';
 import {progressbar} from './rec.js';
-import {show, hide} from './cssusage';
-import arrow from './image.png';
-import {importAll} from './ussage';
-import {Conductor} from './conductor2';
-import {Shaker} from './shaker';
-import {Balance} from './balance';
-import {Gyro} from './gyro';
+import {show, hide} from './ussage/cssusage';
+import arrow from './img/arrow.png';
+import {importAll} from './ussage/ussage';
+import {Conductor} from './mode/conductor2';
+import {Shaker} from './mode/shaker';
+import {Balance} from './mode/balance';
+import {Gyro} from './mode/gyro';
 import {dm} from './device';
 import * as Tone from 'tone';
 import {checkMicPermission, recorder, micPermission} from './mic.js';
 
 var loading = false;
-const images = importAll(require.context('./icons/png', false, /\.(png|jpe?g|svg)$/));
+const images = importAll(require.context('./img/png', false, /\.(png|jpe?g|svg)$/));
 
 const names = ['shaker', 'gyro', 'conductor', 'balance'];
 var viewstep = new viewStep('.step', 1, 2, {

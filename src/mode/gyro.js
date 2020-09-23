@@ -1,6 +1,5 @@
-import {RecordMode} from './mode';
-import { BufferPlayer } from './recorder';
-import {Avg, json2Str, minmax} from './ussage';
+import {RecordMode} from './mode.js';
+import {json2Str, minmax} from '../ussage/ussage.js';
 
 export class Gyro extends RecordMode {
     

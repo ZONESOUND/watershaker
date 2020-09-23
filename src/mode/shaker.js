@@ -1,6 +1,5 @@
-import { trim } from 'jquery';
-import {RecordMode} from './mode';
-import {Avg, json2Str, minmax} from './ussage';
+import {RecordMode} from './mode.js';
+import {Avg, json2Str, minmax} from '../ussage/ussage.js';
 
 export class Shaker extends RecordMode {
     

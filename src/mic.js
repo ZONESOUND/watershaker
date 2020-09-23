@@ -42,10 +42,9 @@ let grantMicPermission = async () => {
     try {
         mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true});
         initRecord();
-        console.log('ya');
     } catch(err) {
         //handle hint page here
-        alert(err);
+        //alert(err);
         console.error(err);
         return false;
     }
@@ -77,7 +76,7 @@ let testRecorder = ()=> {
         console.log(buffer);
         console.log(mediaStream);
         if (buffer.length != 0) {
-            testMic = true
+            testMic = true;
         } else {
             //TODO:handle...
             alert('[MICROPHONE] something went wrong');

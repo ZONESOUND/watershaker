@@ -1,5 +1,5 @@
-import {Mode} from './mode';
-import {importAll, minmax, scale, json2Str, Avg} from './ussage';
+import {Mode} from './mode.js';
+import {importAll, minmax, scale, json2Str, Avg} from '../ussage/ussage.js';
 import {GrainPlayer, Transport, Gain, Player} from 'tone';
 /***
  * 
@@ -12,10 +12,10 @@ import {GrainPlayer, Transport, Gain, Player} from 'tone';
 const list = ['bass', 'piano', 'sax', 'drum'];
 
 var pathList = [
-    importAll(require.context('./sounds/jazz/piano', false, /\.(m4a|mp3)$/)),
-    importAll(require.context('./sounds/jazz/sax', false, /\.(m4a|mp3)$/)),
-    importAll(require.context('./sounds/jazz/bass', false, /\.(m4a|mp3)$/)),
-    importAll(require.context('./sounds/jazz/drum', false, /\.(m4a|mp3)$/))
+    importAll(require.context('../sounds/jazz/piano', false, /\.(m4a|mp3)$/)),
+    importAll(require.context('../sounds/jazz/sax', false, /\.(m4a|mp3)$/)),
+    importAll(require.context('../sounds/jazz/bass', false, /\.(m4a|mp3)$/)),
+    importAll(require.context('../sounds/jazz/drum', false, /\.(m4a|mp3)$/))
 ];
 
 export class Conductor extends Mode {
@@ -105,6 +105,7 @@ class JazzPlayer {
         this.grain = grain;
         this.initPlayer();
         this.fade = "4n";
+        this.volume = 0.7;
     }
 
     initPlayer() {
@@ -142,7 +143,7 @@ class JazzPlayer {
         if (this.players[ind].loaded) {
             this.players[ind].playbackRate = this.playbackRate;
             if(this.grain) this.players[ind].detune = -12*Math.log2(this.playbackRate);
-            this.gains[ind].gain.rampTo(1, this.fade);
+            this.gains[ind].gain.rampTo(this.volume, this.fade);
             this.players[ind].start();
             this.current = ind;
         }

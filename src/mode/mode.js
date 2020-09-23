@@ -1,5 +1,5 @@
-import {recStart, recEnd, recRestart} from './recusage.js';
-import {BufferPlayer} from './recorder';
+import {recStart, recEnd, recRestart} from '../ussage/recusage.js';
+import {BufferPlayer} from '../recorder.js';
 export class Mode {    
     constructor(config={}) {
         this.fillConfig(config);

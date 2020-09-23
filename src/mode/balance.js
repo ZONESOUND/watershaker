@@ -1,7 +1,7 @@
-import {Mode} from './mode';
-import {minmax, scale, json2Str, Avg, random, drunk, randomMore} from './ussage';
+import {Mode} from './mode.js';
+import {minmax, scale, json2Str, Avg, random, drunk, randomMore} from '../ussage/ussage.js';
 import * as Tone from 'tone';
-import forest from './sounds/forest1.mp3';
+import forest from '../sounds/forest1.mp3';
 
 export class Balance extends Mode{
     constructor(config) {
