@@ -29,11 +29,11 @@ export class Conductor extends Mode {
 
     inInit() {
         this.players = [];
-        console.log(pathList);
+        //console.log(pathList);
         let i=0;
         pathList.forEach(path => {
             i++;
-            console.log(path, i<=2);
+            //console.log(path, i<=2);
             this.players.push(new JazzPlayer(path, false, this.onload.bind(this)));
         });
 
@@ -163,7 +163,7 @@ class JazzPlayer {
     changeRate(v) {
         this.playbackRate = v;
         this.players[this.current].playbackRate = v;
-        console.log('rate', v, -12*Math.log2(1/v));
+        //console.log('rate', v, -12*Math.log2(1/v));
         if (this.shift) this.shifts[this.current].pitch = -12*Math.log2(v);
     }
 }

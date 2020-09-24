@@ -17,9 +17,10 @@ export class Gyro extends RecordMode {
     }
 
     afterStop() {
-        console.log('after stop!');
+        //console.log('after stop!');
         this.bufferPlayer.applyPingPong();
         this.bufferPlayer.playBuffer(this.recorder.getBuffer(), true, {in:2, out:1});
+        this.playing = true;
     }
 
     inEnd() {
@@ -34,8 +35,8 @@ export class Gyro extends RecordMode {
         this.bufferPlayer.setPlayRate(xy.y);
         let vxavg = this.vxAvg.get(this.dm.orientVel.roll);
         let vyavg = this.vxAvg.get(this.dm.orientVel.pitch);
-        let vx = scale(Math.abs(vxavg), 2, 80, 0.1, 1);
-        let vy = scale(Math.abs(vyavg), 2, 80, 0.1, 0.5);
+        let vx = minmax(scale(Math.abs(vxavg), 2, 80, 0.1, 1), 0.1, 1);
+        let vy = minmax(scale(Math.abs(vyavg), 2, 80, 0.1, 0.5), 0.1, 0.8);
         this.bufferPlayer.setPinPongDelay(vx);
         this.bufferPlayer.setPinPongFeedback(vy);
         this.logHTML('biginstr', `${vx}<br>${vy}<br>${json2Str(this.dm.orientVel)}`);

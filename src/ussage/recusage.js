@@ -51,7 +51,7 @@ function hideInstr() {
 }
 
 export function recRestart() {
-    console.log('rec restart');
+    //console.log('rec restart');
     $("#rec").attr('state', 'stop');
     show("#recarea");
     hideInstr();
@@ -60,7 +60,7 @@ export function recRestart() {
 }
 
 export function recStart() {
-    console.log('rec start');
+    //console.log('rec start');
     $("#rec").attr('state', 'record');
     hideRec();
     //hideInstr();
@@ -69,7 +69,7 @@ export function recStart() {
 }
 
 export function recEnd() {
-    console.log('rec end');
+    //console.log('rec end');
     $("#rec").attr('state', 'stop');
     hideProgress();
     showInstr();

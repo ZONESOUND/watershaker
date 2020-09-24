@@ -12,10 +12,11 @@ export class Shaker extends RecordMode {
     }
     
     afterStop() {
-        this.trimBuffer(this.recorder.getBuffer());
-        //this.bufferPlayer.playBuffer(this.buffer);
+        let buffer = this.recorder.getBuffer();
+        this.trimBuffer(buffer.buffer);
+        this.buffertype = buffer.type;
         this.bufferPlayer.applyPingPong();
-        //this.bufferPlayer.playBuffer(this.buffer);
+        this.playing = true;
     }
 
     inMotion() {
@@ -40,7 +41,8 @@ export class Shaker extends RecordMode {
     playImmediately() {
         if (!this.enablePlay) return;
         this.enablePlay = false;
-        this.bufferPlayer.playBuffer(this.buffer);
+        this.bufferPlayer.playBuffer({buffer: this.buffer, type:this.buffertype});
+        //this.bufferPlayer.playBuffer(this.buffer);
         setTimeout((()=>{
             this.enablePlay = true;
         }).bind(this), this.enableMs);

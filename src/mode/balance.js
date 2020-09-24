@@ -29,13 +29,13 @@ export class Balance extends Mode{
         let fv = scale(v, 2, 90, 0, 1);
         fv = minmax(fv, 0, 1);
         this.logHTML('biginstr', fv + '<br>' + v + '<br>' + json2Str(this.dm.orientVel));
-        this.forest.volume.rampTo(fv*(-45), 1);
-        this.noise.setVolume(fv*0.45, 0);
+        this.forest.volume.rampTo(fv*(-45)+5, 1);
+        this.noise.setVolume(fv < 0.05 ? 0 : fv*0.45, 0);
     }
 
     startEnable() {
         if (this.forest.loaded) {
-            console.log(this.forest);
+            //console.log(this.forest);
             this.forest.volume.rampTo(0, 1);
             this.forest.start("+0");
             this.noise.start();

@@ -1,4 +1,4 @@
-import Recorder from './recorder';
+import {getRecorder} from './recorder';
 import {showDialog, hint} from './dialog';
 
 var recorder;
@@ -7,7 +7,8 @@ const context = new AudioContext();
 var mediaStream, source;
 var micPermission = false;
 var testMic = false;
-var testTime = 50;
+var testTime = 500;
+var testFinish = false;
 
 let olderBrowser = function() {
     // Older browsers might not implement mediaDevices at all, so we set an empty object first
@@ -42,15 +43,15 @@ let olderBrowser = function() {
 let grantMicPermission = async () => {
     olderBrowser();
     try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true});
-        initRecord();
-        await wait(testTime + 5);
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true}); 
     } catch(err) {
         //handle hint page here
         showDialog('To record samples, please turn on microphone.'+hint);
-        console.error(err);
+        //console.error(err);
         return false;
     }
+    initRecord();
+    while(!testFinish) await wait(testTime);
     return testMic && true;
 }
 
@@ -61,24 +62,33 @@ let checkMicPermission = async () => {
 }
 
 let initRecord = function() {
-    console.log(mediaStream);
-    source = context.createMediaStreamSource(mediaStream);
-    recorder = new Recorder(source);
+    recorder = getRecorder(mediaStream, context);
     recorder.init();
-    testRecorder();
-};
-
-let testRecorder = ()=> {
-    recorder.record(true);
-    setTimeout(()=>{
-        recorder.stop();
-        let buffer = recorder.getBuffer();
-        if (buffer.length != 0) {
+    recorder.testRecorder((len)=>{
+        if (len != 0) {
             testMic = true;
         } else {
             showDialog('There seems to be an issue with the microphone, please reload the page.');
             testMic = false;
         }
+        testFinish = true;
+    }, testTime);
+};
+
+let testRecorder = ()=> {
+    recorder.record(true);
+    setTimeout(()=>{
+        recorder.stop(()=>{
+            let buffer = recorder.getBuffer();
+            if (buffer.length != 0) {
+                testMic = true;
+            } else {
+                showDialog('There seems to be an issue with the microphone, please reload the page.');
+                testMic = false;
+            }
+            testFinish = true;
+        });
+        
     }, testTime);
 }
 

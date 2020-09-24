@@ -114,7 +114,7 @@ export class RecordMode extends Mode {
     record() {
         this.recording = true;
         recStart();
-        console.log('record', this.recorder);
+        //console.log('record', this.recorder);
         
         this.progressBar.animate(0, {duration: 0}, (()=>{
             this.progressBar.animate(1.0, {duration: this.config.recordTime}, this.stopRecord.bind(this));
@@ -126,10 +126,8 @@ export class RecordMode extends Mode {
             recEnd();
             this.recording = false;
             this.progressBar.stop();
-            this.recorder.stop();
-            //setTimeout(()=>{this.playRecord()}, 1000);
-            if (this.afterStop) this.afterStop();
-            this.playing = true;
+            //this.recorder.stop();
+            this.recorder.stop(this.afterStop.bind(this));
         }
     }
     playRecord() {
@@ -138,6 +136,7 @@ export class RecordMode extends Mode {
 
     inEnd() {
         this.stopRecord();
+        this.playing = false;
     }
 
     trimBuffer(buffer, threshold=0.01) {

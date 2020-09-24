@@ -33,7 +33,7 @@ initPage();
 function initPage() {
     $('#previmg').attr("src", arrow);
     for (let i in images) {
-        console.log(images[i].default);
+        //console.log(images[i].default);
         $('#selector').append(createBtn(`mode-${i}`, images[i].default, names[i]));
         // button onclick
         $('#mode-'+i).on('click', function() {
@@ -47,7 +47,7 @@ function initPage() {
                 if (dm.granted) {
                     viewstep.showNext(true, true, 2);
                 } else {
-                    //viewstep.showNext(true, true, 2);
+                    viewstep.showNext(true, true, 2);
                     showDialog('For the full experience, please accept orientation permission.'+hint);
                 }
             });
@@ -108,7 +108,7 @@ $("#prev").on('click', function() {
 });
 
 function selectMode () {
-    console.log('select mode:', mode);
+    //console.log('select mode:', mode);
     $("#biginstr").text(nowMode.getInstr());
     $("#recinstr").text(nowMode.getRecordInstr());
     nowMode.setDM(dm); //only one time?
@@ -116,7 +116,7 @@ function selectMode () {
     if (mode < 2) {
         show('.recorduse');
         recRestart();
-        console.log(progressbar, recorder);
+        //console.log(progressbar, recorder);
         nowMode.setProgressBar(progressbar); //one time?
         if (nowMode.recorder == null) nowMode.setRecorder(recorder); //one time?
     } else {

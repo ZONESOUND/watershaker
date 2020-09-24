@@ -1,16 +1,109 @@
-import { omitFromObject } from "tone/build/esm/core/util/Defaults";
-
-export default class Recorder {
-    #recording = false;
-    recordedBuffer = [];
-
-    constructor(source=null) {
-        this.setupSource(source);
+class RecorderInterface {
+    recording = false;
+    constructor(mediaStream, context){
+        //this.
+        this.recordedBuffer = [];
+        this.context = context;
+        this.setupStream(mediaStream);
+        this.type == 'array';
+    }
+    record(clear=true) {
+        if (clear) this.clear();
+        this.recording = true;
+        this.inRecord();
+    }
+    stop(callback = null) {
+        this.recording = false;
+        this.stopCb = callback;
+        this.inStop();
+    }
+    clear() {
+        this.recordedBuffer = [];
+        this.recordedBlobs = [];
+    }
+    getBuffer() {
+        //console.log(this.recordedBuffer);
+        return {buffer: this.recordedBuffer, type: this.type};
+    }
+    isRecording() {
+        return this.recording;
+    }
+    getContext() {
+        return this.context;
     }
 
-    setupSource(source) {
-        this.context = source.context;
-        this.source = source;
+    testRecorder = (callback, testTime=500)=> {
+        this.testing = true;
+        this.record(true);
+        setTimeout(()=>{
+            this.stop((()=>{
+                callback(this.recordedBuffer.length);
+                this.testing = false;
+            }).bind(this));
+        }, testTime);
+    }
+
+    setupStream(stream) {}
+    init() {}
+    inRecord() {}
+    inStop() {}
+}
+
+export function getRecorder(stream, context) {
+    //WebKit??
+    if(/iPad|iPhone|iPod/i.test(navigator.userAgent) ) {
+        return new Recorder(stream, context);
+    } else {
+        return new mRecorder(stream, context);
+    }
+}
+
+class mRecorder extends RecorderInterface{
+    constructor(mediaStream, context){
+        super(mediaStream, context);
+        this.recordedBlobs = [];
+        this.type = 'audioBuffer';
+    }
+    setupStream(stream) {
+        this.mediaRecorder = new MediaRecorder(stream);
+    }
+    init() {
+        this.mediaRecorder.ondataavailable = (function(e) {
+            //console.log('onData');
+            this.recordedBlobs.push(e.data);
+        }).bind(this);
+        this.mediaRecorder.onstop = (async (e) => {
+            var blob = new Blob(this.recordedBlobs); //, {type:'audio/mp3'}
+            let arraybuffer = await blob.arrayBuffer();
+            this.context.decodeAudioData(arraybuffer, (function (audioBuffer) {
+                this.recordedBuffer = audioBuffer;
+                if (this.stopCb) this.stopCb();
+            }).bind(this));
+            
+        }).bind(this);
+    }
+    inRecord() {
+        //console.log('record!');
+        this.mediaRecorder.start();
+    }
+    inStop() {
+        //console.log('stop!');
+        this.mediaRecorder.stop();
+    }
+
+    
+    
+}
+
+class Recorder extends RecorderInterface {
+   
+    constructor(mediaStream, context) {
+        super(mediaStream, context);
+        this.type = 'array';
+    }
+
+    setupStream(ms) {
+        this.source = this.context.createMediaStreamSource(ms);
     }
 
     init() {
@@ -21,85 +114,20 @@ export default class Recorder {
     connectAll() {
         this.processor.connect(this.context.destination);
         this.source.connect(this.processor);
-        //this.source.connect(this.context.destination);
-        //this.source.start();
     }
 
     initProcessor() {
         this.processor = this.context.createScriptProcessor(1024,1,1);
-
         this.processor.onaudioprocess = (e) => {
-            //console.log(e, this.#recording);
-            if (!this.#recording) return;
-            //console.log(e.inputBuffer.getChannelData(0), this.#recording);
+            if (!this.recording) return;
             e.inputBuffer.getChannelData(0).forEach(e => {
                 this.recordedBuffer.push(e);
             })
         };
     }
 
-    record(clear=true) {
-        if (clear) this.clear();
-        this.#recording = true;
-    }
-
-    stop(callback = null) {
-        this.#recording = false;
-        if (callback) callback();
-    }
-
-    clear() {
-        this.recordedBuffer = [];
-    }
-
-    getBuffer() {
-        return this.recordedBuffer;
-    }
-
-    isRecording() {
-        return this.#recording;
-    }
-
-    // play(loop=false, fade={in:0, out:0}) {
-
-    //     let playSource = this.context.createBufferSource();
-    //     let newBuffer = this.context.createBuffer(1, this.recordedBuffer.length, this.context.sampleRate);
-    //     newBuffer.getChannelData(0).set(this.recordedBuffer);
-    //     this.gainNode = this.context.createGain();
-    //     //exponentialRampToValueAtTime
-    //     this.gainNode.gain.value = 0;
-    //     this.gainNode.gain.exponentialRampToValueAtTime(1, this.context.currentTime+fade.in);
-
-    //     setTimeout((()=>{
-    //         this.gainNode.gain.exponentialRampToValueAtTime(0, this.context.currentTime+fade.out)}).bind(this)
-    //         ,(newBuffer.duration-fade.out)*1000);
-    //     playSource.buffer = newBuffer;
-    //     playSource.loop = loop;
-    //     playSource.connect(this.gainNode);
-    //     this.gainNode.connect(this.context.destination);
-    //     playSource.start();
-    //     playSource.onended = function() {
-    //         playSource.disconnect(this.gainNode);
-    //     }
-    //     this.playSource = playSource;
-    //     console.log('gain!', this.gainNode);
-    // }
-
-    // setPlayGain(v) {
-    //     //console.log(this.gainNode);
-    //     this.gainNode.gain.value = v;
-    // }
-
-    // setPlayRate(v) {
-    //     this.playSource.playbackRate.value = v;
-    // }
-
-    // stopPlay() {
-    //     this.playSource.disconnect(this.gainNode);
-    // }
-
-    getContext() {
-        return this.context;
+    inStop() {
+        if (this.stopCb) this.stopCb();
     }
 }
 
@@ -114,7 +142,17 @@ export class BufferPlayer {
 
     }
 
-    playBuffer(buffer, loop=false, fade={in:0, out:0}) {
+    playBuffer({buffer, type}, loop=false, fade={in:0, out:0}) {
+        if (type == 'array') {
+            this.newBuffer = this.context.createBuffer(1, buffer.length, this.context.sampleRate);
+            this.newBuffer.getChannelData(0).set(buffer);
+        } else {
+            this.newBuffer = buffer;
+        }
+        this.play(loop, fade);
+    }
+
+    playBufferOri(buffer, loop=false, fade={in:0, out:0}) {
         this.buffer = buffer;
         this.play(loop, fade);
     }
@@ -122,22 +160,20 @@ export class BufferPlayer {
     play(loop=false, fade={in:0, out:0}) {
         this.loop = loop;
         let playSource = this.context.createBufferSource();
-        let newBuffer = this.context.createBuffer(1, this.buffer.length, this.context.sampleRate);
-        newBuffer.getChannelData(0).set(this.buffer);
         this.gainNode.gain.setValueAtTime(1, this.context.currentTime);
         playSource.loop = loop;
-        playSource.buffer = newBuffer;
+        playSource.buffer = this.newBuffer;
         playSource.connect(this.gainNode);
         playSource.start();
         playSource.onended = (function() {
             this.toStop();
-            console.log('onend!');
+            //console.log('onend!');
         }).bind(this);
         this.playSource = playSource;
     }
 
     applyPingPong(delay=0.15, feedback=0.25) {
-        console.log('applyPingPong!');
+        //console.log('applyPingPong!');
         let delayNode = this.context.createDelay();
         delayNode.delayTime.setValueAtTime(delay, this.context.currentTime);
         //this.gainNode.disconnect(this.connectTo);
@@ -163,11 +199,13 @@ export class BufferPlayer {
     }
 
     setPinPongDelay(v) {
-        this.delayNode.delayTime.setValueAtTime(v, this.context.currentTime+0.1);
+        if (this.delayNode)
+            this.delayNode.delayTime.setValueAtTime(v, this.context.currentTime+0.1);
     }
 
     setPinPongFeedback(v) {
-        this.fbGain.gain.setValueAtTime(v, this.context.currentTime+0.1);
+        if (this.fbGain)
+            this.fbGain.gain.setValueAtTime(v, this.context.currentTime+0.1);
     }
 
     setPlayGain(v) {
@@ -176,7 +214,8 @@ export class BufferPlayer {
     }
 
     setPlayRate(v) {
-        this.playSource.playbackRate.value = v;
+        if (this.playSource)
+            this.playSource.playbackRate.value = v;
     }
 
     stop() {
@@ -185,6 +224,9 @@ export class BufferPlayer {
     }
 
     toStop() {
-        this.playSource.disconnect(this.gainNode);
+        if (this.playSource) {
+            this.playSource.disconnect(this.gainNode);
+            this.playSource = null;
+        }
     }
 }

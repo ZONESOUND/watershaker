@@ -20,7 +20,7 @@ export var progressbar = new ProgressBar.Circle('#recprogress', {
         }
     }
 });
-console.log('progressbar init', progressbar);
+//console.log('progressbar init', progressbar);
 
 $("#rec").on('click', ()=>{
     nowMode.record();
