@@ -5,7 +5,7 @@ export class Shaker extends RecordMode {
     
     constructor(config) {
         super(config);
-        if(!this.config.recordTime) this.config.recordTime = 700;
+        if(!this.config.recordTime) this.config.recordTime = 2000;
         this.enablePlay = true;
         this.avg = new Avg(10);
         this.enableMs = this.config.recordTime/4;

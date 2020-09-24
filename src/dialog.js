@@ -15,9 +15,11 @@ headID.appendChild(link2);
 
 vex.defaultOptions.className = 'vex-theme-wireframe';
 
-function showDialog(msg) {
+function showDialog(msg, callback=()=>{}, okbtn='OK') {
+    vex.dialog.buttons.YES.text = okbtn
     vex.dialog.alert({
         message: msg,
+        callback: callback
     })
 }
 
