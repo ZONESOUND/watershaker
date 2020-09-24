@@ -108,8 +108,10 @@ export class BufferPlayer {
         this.context = context;
         this.buffer = buffer;
         this.gainNode = this.context.createGain();
-        this.gainNode.connect(this.context.destination);
-        this.connectTo = this.context.destination;
+        this.destination = this.context.destination;
+        this.applyComposer();
+        this.gainNode.connect(this.destination);
+
     }
 
     playBuffer(buffer, loop=false, fade={in:0, out:0}) {
@@ -134,17 +136,38 @@ export class BufferPlayer {
         this.playSource = playSource;
     }
 
-    applyPingPong(delay=0.15, feedback=0.2) {
+    applyPingPong(delay=0.15, feedback=0.25) {
         console.log('applyPingPong!');
         let delayNode = this.context.createDelay();
         delayNode.delayTime.setValueAtTime(delay, this.context.currentTime);
         //this.gainNode.disconnect(this.connectTo);
         this.gainNode.connect(delayNode);
-        delayNode.connect(this.context.destination);
+        delayNode.connect(this.destination);
         let fbGain = this.context.createGain();
         fbGain.gain.setValueAtTime(feedback, this.context.currentTime);
         delayNode.connect(fbGain);
         fbGain.connect(delayNode);
+        this.delayNode = delayNode;
+        this.fbGain = fbGain;
+    }
+
+    applyComposer() {
+        let compressor = this.context.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-50, this.context.currentTime);
+        compressor.knee.setValueAtTime(40, this.context.currentTime);
+        compressor.ratio.setValueAtTime(12, this.context.currentTime);
+        compressor.attack.setValueAtTime(0, this.context.currentTime);
+        compressor.release.setValueAtTime(0.25, this.context.currentTime);
+        this.destination = compressor;
+        compressor.connect(this.context.destination);
+    }
+
+    setPinPongDelay(v) {
+        this.delayNode.delayTime.setValueAtTime(v, this.context.currentTime+0.1);
+    }
+
+    setPinPongFeedback(v) {
+        this.fbGain.gain.setValueAtTime(v, this.context.currentTime+0.1);
     }
 
     setPlayGain(v) {

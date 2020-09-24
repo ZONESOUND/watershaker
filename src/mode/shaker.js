@@ -5,10 +5,10 @@ export class Shaker extends RecordMode {
     
     constructor(config) {
         super(config);
-        if(!this.config.recordTime) this.config.recordTime = 2000;
+        if(!this.config.recordTime) this.config.recordTime = 2500;
         this.enablePlay = true;
         this.avg = new Avg(10);
-        this.enableMs = this.config.recordTime/4;
+        this.enableMs = this.config.recordTime/3;
     }
     
     afterStop() {
@@ -28,17 +28,19 @@ export class Shaker extends RecordMode {
 
     playWhenAcc(a, aa) {
         this.logHTML('biginstr', a.toFixed(0) + '<br>' + aa.toFixed(0) + '<br>' + json2Str(this.dm.orientAcc));
-        if ((a > 0 && aa < 0) || (a < 0 && aa > 0)) return;
-        if ( Math.abs(a) > Math.abs(aa) * 100 && Math.abs(a) > 5000) {
+        //if ((a > 0 && aa < 0) || (a < 0 && aa > 0)) return;
+        // if ( Math.abs(a) > Math.abs(aa) * 50 && Math.abs(a) > 3500) {
+        //     //this.playImmediately();
+        // } else 
+        if (a > 6000 && aa < 0 || a < -10000 && aa > 0 || Math.abs(a) > Math.abs(aa) * 1000) {
             this.playImmediately();
         }
     }
      
     playImmediately() {
         if (!this.enablePlay) return;
-        this.bufferPlayer.playBuffer(this.buffer);     
-          
         this.enablePlay = false;
+        this.bufferPlayer.playBuffer(this.buffer);
         setTimeout((()=>{
             this.enablePlay = true;
         }).bind(this), this.enableMs);

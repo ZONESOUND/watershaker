@@ -20,6 +20,7 @@ export class Balance extends Mode{
     }
 
     onload() {
+        console.log('forest onload');
         this.loaded = true;
         if (this.config.onload) this.config.onload();
     }

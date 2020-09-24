@@ -1,5 +1,5 @@
 import {RecordMode} from './mode.js';
-import {json2Str, minmax} from '../ussage/ussage.js';
+import {json2Str, minmax, scale, Avg} from '../ussage/ussage.js';
 
 export class Gyro extends RecordMode {
     
@@ -8,16 +8,17 @@ export class Gyro extends RecordMode {
         if(!this.config.recordTime) this.config.recordTime = 10000;
         this.enablePlay = true;
         this.move = new Move(
-            {min: 0.1, max: 2},
+            {min: 0.1, max: 1},
             {min: 0.1, max: 2},
             {x: 0.01, y: 0.01}
         );
-        
-        //this.avg = new Avg(10);
+        this.vxAvg = new Avg(20);
+        this.vyAvg = new Avg(20);
     }
 
     afterStop() {
         console.log('after stop!');
+        this.bufferPlayer.applyPingPong();
         this.bufferPlayer.playBuffer(this.recorder.getBuffer(), true, {in:2, out:1});
     }
 
@@ -28,10 +29,17 @@ export class Gyro extends RecordMode {
     inMotion() {
         if (!this.playing) return;
         let xy = this.move.move(this.dm.orient.roll, this.dm.orient.pitch);
-        this.logHTML('biginstr', `${xy.x}<br>${xy.y}<br>${json2Str(this.dm.orient)}`);
-        console.log('playgain'+xy.x);
+        //console.log('playgain'+xy.x);
         this.bufferPlayer.setPlayGain(xy.x);
         this.bufferPlayer.setPlayRate(xy.y);
+        let vxavg = this.vxAvg.get(this.dm.orientVel.roll);
+        let vyavg = this.vxAvg.get(this.dm.orientVel.pitch);
+        let vx = scale(Math.abs(vxavg), 2, 80, 0.1, 1);
+        let vy = scale(Math.abs(vyavg), 2, 80, 0.1, 0.5);
+        this.bufferPlayer.setPinPongDelay(vx);
+        this.bufferPlayer.setPinPongFeedback(vy);
+        this.logHTML('biginstr', `${vx}<br>${vy}<br>${json2Str(this.dm.orientVel)}`);
+
         //console.log('in!', this.dm);
         // let a = minmax(this.dm.orientAcc.yaw, -100000, 100000);
         // let aa = this.avg.get(a);
