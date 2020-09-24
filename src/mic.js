@@ -1,5 +1,5 @@
 import Recorder from './recorder';
-import {showDialog} from './dialog';
+import {showDialog, hint} from './dialog';
 
 var recorder;
 const AudioContext = window.AudioContext|| window.webkitAudioContext ||      window.mozAudioContext || window.msAudioContext;
@@ -47,7 +47,7 @@ let grantMicPermission = async () => {
         await wait(testTime + 5);
     } catch(err) {
         //handle hint page here
-        showDialog('To record samples, please turn on microphone.');
+        showDialog('To record samples, please turn on microphone.'+hint);
         console.error(err);
         return false;
     }

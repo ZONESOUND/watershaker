@@ -19,8 +19,7 @@ import {Gyro} from './mode/gyro';
 import {dm} from './device';
 import * as Tone from 'tone';
 import {checkMicPermission, recorder, micPermission} from './mic.js';
-import {showDialog} from './dialog';
-
+import {showDialog, hint} from './dialog';
 var loading = false;
 const images = importAll(require.context('./img/png', false, /\.(png|jpe?g|svg)$/));
 
@@ -52,7 +51,7 @@ function initPage() {
                 } else {
                     //TODO: handle
                     //viewstep.showNext(true, true, 2);
-                    showDialog('For the full experience, please accept orientation permission.');
+                    showDialog('For the full experience, please accept orientation permission.'+hint);
                 }
             });
             
@@ -61,6 +60,7 @@ function initPage() {
     }
     Promise.all(Array.from(document.images).filter(img => !img.complete).map(img => new Promise(resolve => {img.onload = img.onerror = resolve; }))).then(() => {
         $('#selector div').removeClass('hidden');
+        $('#subtitle').removeClass('hidden');
         putSelector();
         initModeList();
     });

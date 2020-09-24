@@ -22,8 +22,9 @@ function showDialog(msg, callback=()=>{}, okbtn='OK') {
         callback: callback
     })
 }
+const hint = " Use Safari/Chrome For best experience.";
 
-export {showDialog};
+export {showDialog, hint};
 
 
 
