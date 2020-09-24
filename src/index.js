@@ -63,31 +63,31 @@ function initPage() {
 }
 
 function initModeList() {
-    modeList = [
-        new Shaker({
-            recordTime: 600,
-            recordInstr: 'Create and capture a short sound',
-            instr: 'SHAKE THE SOUND',
-        }), 
-        new Gyro({
-            recordTime: 10000,
-            recordInstr: 'Find and record a continuous sound',
-            instr: 'MODULATE THE SOUND WITH MOTIONS',
-        }), 
-        new Conductor({
-            instr: 'WAVE THE DEVICE TO DIRECT THE MUSIC',
-            onload:()=>{
-                if (loading) checkLoad();
-                //alert('conductor loaded');
-            }
-        }), 
-        new Balance({
-            instr: 'KEEP BALANCE',
-            onload:()=>{
-                if (loading) checkLoad();
-                //alert('balance loaded');
-            }
-    })];
+    let shaker = new Shaker({
+        recordTime: 600,
+        recordInstr: 'Create and capture a short sound',
+        instr: 'SHAKE THE SOUND',
+    });
+    let gyro = new Gyro({
+        recordTime: 10000,
+        recordInstr: 'Find and record a continuous sound',
+        instr: 'MODULATE THE SOUND WITH MOTIONS',
+    });
+    let bal = new Balance({
+        instr: 'KEEP BALANCE',
+        onload:()=>{
+            if (loading) checkLoad();
+            //alert('balance loaded');
+        }
+    });
+    let cond = new Conductor({
+        instr: 'WAVE THE DEVICE TO DIRECT THE MUSIC',
+        onload:()=>{
+            if (loading) checkLoad();
+            //alert('conductor loaded');
+        }
+    });
+    modeList = [shaker, gyro, cond, bal];
 }
 
 function createBtn(id, src, txt) {

@@ -9,7 +9,7 @@ import {GrainPlayer, Transport, Gain, Player} from 'tone';
     onload
  */
 
-const list = ['bass', 'piano', 'sax', 'drum'];
+// const list = ['bass', 'piano', 'sax', 'drum'];
 
 var pathList = [
     importAll(require.context('../sounds/jazz/piano', false, /\.(m4a|mp3)$/)),
@@ -110,44 +110,53 @@ class JazzPlayer {
         this.playbackRate = 1;
         this.grain = grain;
         this.empty = empty;
-        this.initPlayer();
+        this.initPlayer(0);
         this.fade = "4n";
         this.multVolume = 1;
-        this.volume = 0.3;
+        this.volume = 0.25;
     }
 
-    initPlayer() {
-        this.soundPath.forEach(e => {
-            let p;
-            if (this.grain) {
-                p = new GrainPlayer({
-                    url: e.default,
-                    loop: true,
-                    grainSize: 0.1,
-                    overlap: 0.05,
-                    onload: this.onload.bind(this)
-                });
-            } else {
-                p = new Player(e.default, this.onload.bind(this));
-                p.loop = true;
-            }
-            
-            let gain = new Gain(0).toDestination();
-            p.connect(gain);
-            this.players.push(p);
-            this.gains.push(gain);
-        });
+    initOnePlayer(e) {
+        let p;
+        if (this.grain) {
+            p = new GrainPlayer({
+                url: e.default,
+                loop: true,
+                grainSize: 0.1,
+                overlap: 0.05,
+                onload: this.onload.bind(this)
+            });
+        } else {
+            p = new Player(e.default, this.onload.bind(this));
+            p.loop = true;
+        }
+        
+        let gain = new Gain(0).toDestination();
+        p.connect(gain);
+        this.players.push(p);
+        this.gains.push(gain);
+    }
+
+    initPlayer(ind) {
+        this.initOnePlayer(this.soundPath[ind]);
     }
 
     onload() {
         this.loaded++;
-        if (this.loaded == this.soundPath.length) {
+        if (this.loaded == 1) {
+        //if (this.loaded == this.soundPath.length) {
             if (this.onloadCb) this.onloadCb();
         }
+        this.current = Math.floor(Math.random()*this.loaded);
+        this.initPlayer(this.loaded);
+    }
+
+    isLoaded(ind) {
+        return this.players[ind].loaded;
     }
 
     play(ind = this.current) {
-        if (this.players[ind].loaded) {
+        if (this.isLoaded(ind)) {
             this.players[ind].playbackRate = this.playbackRate;
             if(this.grain) this.players[ind].detune = -12*Math.log2(this.playbackRate);
             this.gains[ind].gain.rampTo(this.volume*this.multVolume, this.fade);
@@ -168,7 +177,7 @@ class JazzPlayer {
 
     change() {
         if (Math.random() > 0.2) return;
-        let r = Math.floor(Math.random()*this.players.length);
+        let r = Math.floor(Math.random()*this.loaded);
         if (this.current == r) return;
         this.stop();
         
