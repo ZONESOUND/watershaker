@@ -40,9 +40,9 @@ function initPage() {
         // button onclick
         $('#mode-'+i).on('click', function() {
             if (mode == -1) { 
-                mode = i;
                 Tone.context.resume();
-            } else return;
+            } 
+            mode = i;
             nowMode = modeList[i];
             // change to await
             dm.requestPermission().then(()=>{
@@ -54,7 +54,6 @@ function initPage() {
                     showDialog('For the full experience, please accept orientation permission.'+hint);
                 }
             });
-            
         });
 
     }

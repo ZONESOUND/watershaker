@@ -24,6 +24,7 @@ export class Conductor extends Mode {
         if (!this.config.motion) this.config.motion = this.changeRate;
         this.loadNum = 0;
         this.avg = new Avg(20);
+        this.count = 0;
     }
 
     inInit() {
@@ -31,7 +32,7 @@ export class Conductor extends Mode {
         let i=0;
         pathList.forEach(path => {
             i++;
-            this.players.push(new JazzPlayer(path, this.onload.bind(this), i<=3));
+            this.players.push(new JazzPlayer(path, this.onload.bind(this), i<=3, i<=2));
         });
 
         Transport.scheduleRepeat((time) => {
@@ -53,10 +54,13 @@ export class Conductor extends Mode {
     changeRate(v) {
         let fv = 0;
         let low = 50, mid = 90, high = 300;
-        let tlow = 0.2, tmid = 0.8, thigh = 1.1, tfi = 2.5;
+        let tlow = 0.2, tmid = 0.8, thigh = 1.1, tfi = 3;
+        let volume = 1;
         if (v < low) { // slow
             fv = scale(v, 0, low, tlow, tmid);
+            volume = scale(v, 2, low, 0, 0.7);
         } else if (v < mid) { // normal
+            volume = scale(v, low, (low+mid)/2, 0.7, 1);
             fv = scale(v, low, mid, tmid, thigh);
         } else { //fast
             fv = scale(v, mid, high, thigh, tfi);
@@ -65,14 +69,19 @@ export class Conductor extends Mode {
         this.logHTML('biginstr', v + '</br>' + fv + '<br>' + json2Str(this.dm.orientVel));
         Transport.bpm.value = 120*fv;
         this.players.forEach(p=>{
+            p.adjustVolume(volume);
             p.changeRate(fv);
         })
     }
 
     inMotion() {
+        this.count += 1;
         let v = this.calcNorm(this.dm.orientVel);
         let av = this.avg.get(v);
-        this.changeRate(av);
+        if (this.count > 10) {
+            this.changeRate(av);
+            this.count = 0;
+        }
     }
 
     inEnd() {
@@ -103,7 +112,8 @@ class JazzPlayer {
         this.empty = empty;
         this.initPlayer();
         this.fade = "4n";
-        this.volume = 0.7;
+        this.multVolume = 1;
+        this.volume = 0.3;
     }
 
     initPlayer() {
@@ -140,7 +150,7 @@ class JazzPlayer {
         if (this.players[ind].loaded) {
             this.players[ind].playbackRate = this.playbackRate;
             if(this.grain) this.players[ind].detune = -12*Math.log2(this.playbackRate);
-            this.gains[ind].gain.rampTo(this.volume, this.fade);
+            this.gains[ind].gain.rampTo(this.volume*this.multVolume, this.fade);
             this.players[ind].start();
             this.current = ind;
         }
@@ -151,13 +161,18 @@ class JazzPlayer {
         this.players[ind].stop(this.fade);
     }
 
+    adjustVolume(v) {
+        this.multVolume = v;
+        this.gains[this.current].gain.rampTo(this.volume*this.multVolume, "4n");
+    }
+
     change() {
         if (Math.random() > 0.2) return;
-        this.stop();
-
-        if (this.empty && Math.random() > 0.88) return;
-
         let r = Math.floor(Math.random()*this.players.length);
+        if (this.current == r) return;
+        this.stop();
+        
+        if (this.empty && Math.random() > 0.88) return;
         this.play(r);
     }
 
