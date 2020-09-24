@@ -5,7 +5,7 @@ export class Gyro extends RecordMode {
     
     constructor(config) {
         super(config);
-        if(!this.config.recordTime) this.config.recordTime = 10000;
+        if(!this.config.recordTime) this.config.recordTime = 50000;
         this.enablePlay = true;
         this.move = new Move(
             {min: 0.1, max: 1},

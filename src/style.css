@@ -9,10 +9,16 @@ html, body {
     font-size: 1rem;
     font-weight: 400;
     margin: 0;
+    -webkit-text-size-adjust: 100%;
 }
 
 *, ::after, ::before {
     box-sizing: border-box;
+}
+
+svg {
+    overflow: hidden;
+    vertical-align: middle;
 }
 
 .inner {
@@ -296,8 +302,8 @@ h4 {
 
 @keyframes zoomB {
     from {
-      width: 45%;
-      padding-bottom: 45%;
+        width: 45%;
+        padding-bottom: 45%;
     }
     to {
         width: 55%;
@@ -308,8 +314,8 @@ h4 {
 
 @keyframes zoom {
     from {
-      width: 45%;
-      padding-bottom: 45%;
+        width: 45%;
+        padding-bottom: 45%;
     }
     to {
         width: 50%;
@@ -319,8 +325,8 @@ h4 {
 
 @keyframes zoomOut {
     from {
-      width: 50%;
-      padding-bottom: 50%;
+        width: 50%;
+        padding-bottom: 50%;
     }
     to {
         width: 45%;
@@ -369,8 +375,8 @@ h4 {
 
 @-moz-keyframes zoomB {
     from {
-      width: 45%;
-      padding-bottom: 45%;
+        width: 45%;
+        padding-bottom: 45%;
     }
     to {
         width: 55%;

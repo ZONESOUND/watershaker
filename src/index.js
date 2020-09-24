@@ -38,11 +38,11 @@ function initPage() {
         console.log(images[i].default);
         $('#selector').append(createBtn(`mode-${i}`, images[i].default, names[i]));
         // button onclick
-        $('#mode-'+i).on('click', async function() {
+        $('#mode-'+i).on('click', function() {
             if (mode == -1) { 
+                mode = i;
                 Tone.context.resume();
-            }
-            mode = i;
+            } else return;
             nowMode = modeList[i];
             // change to await
             dm.requestPermission().then(()=>{
@@ -133,6 +133,7 @@ function checkLoad() {
     //alert(`${mode} ${modeList[mode].loaded}`);
     loading = true;
     if (modeList[mode].loaded){ 
+        loading = false;
         if (mode < 2) {
             checkMicPermission().then(()=>{
                 if (micPermission) {
