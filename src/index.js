@@ -1,12 +1,9 @@
-//import "@babel/polyfill";
-
 import $ from 'jquery';
 import './style.css';
 import './pageHeight';
 import './checkPC';
 import {putSelector} from'./pageHeight';
 import viewStep from '@zonesoundcreative/view-step';
-import './rec.js';
 import {recRestart, showInstrOnly} from './ussage/recusage.js';
 import {progressbar} from './rec.js';
 import {show, hide} from './ussage/cssusage';
@@ -20,6 +17,7 @@ import {dm} from './device';
 import * as Tone from 'tone';
 import {checkMicPermission, recorder, micPermission} from './mic.js';
 import {showDialog, hint} from './dialog';
+
 var loading = false;
 const images = importAll(require.context('./img/png', false, /\.(png|jpe?g|svg)$/));
 
@@ -49,7 +47,6 @@ function initPage() {
                 if (dm.granted) {
                     viewstep.showNext(true, true, 2);
                 } else {
-                    //TODO: handle
                     //viewstep.showNext(true, true, 2);
                     showDialog('For the full experience, please accept orientation permission.'+hint);
                 }
