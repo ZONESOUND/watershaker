@@ -1,6 +1,6 @@
 import {RecordMode} from './mode.js';
 import {Avg, json2Str, minmax} from '../ussage/ussage.js';
-
+import {PingPongDelay} from 'tone';
 export class Shaker extends RecordMode {
     
     constructor(config) {
@@ -13,8 +13,9 @@ export class Shaker extends RecordMode {
     
     afterStop() {
         this.trimBuffer(this.recorder.getBuffer());
-        this.bufferPlayer.playBuffer(this.buffer);
-
+        //this.bufferPlayer.playBuffer(this.buffer);
+        this.bufferPlayer.applyPingPong();
+        //this.bufferPlayer.playBuffer(this.buffer);
     }
 
     inMotion() {
@@ -27,15 +28,16 @@ export class Shaker extends RecordMode {
 
     playWhenAcc(a, aa) {
         this.logHTML('biginstr', a.toFixed(0) + '<br>' + aa.toFixed(0) + '<br>' + json2Str(this.dm.orientAcc));
-
-        if (a > 0 && a > aa * 20 && a > 3000) {
+        if ((a > 0 && aa < 0) || (a < 0 && aa > 0)) return;
+        if ( Math.abs(a) > Math.abs(aa) * 100 && Math.abs(a) > 5000) {
             this.playImmediately();
         }
     }
      
     playImmediately() {
         if (!this.enablePlay) return;
-        this.bufferPlayer.playBuffer(this.buffer);        
+        this.bufferPlayer.playBuffer(this.buffer);     
+          
         this.enablePlay = false;
         setTimeout((()=>{
             this.enablePlay = true;

@@ -1,3 +1,5 @@
+import { omitFromObject } from "tone/build/esm/core/util/Defaults";
+
 export default class Recorder {
     #recording = false;
     recordedBuffer = [];
@@ -107,6 +109,7 @@ export class BufferPlayer {
         this.buffer = buffer;
         this.gainNode = this.context.createGain();
         this.gainNode.connect(this.context.destination);
+        this.connectTo = this.context.destination;
     }
 
     playBuffer(buffer, loop=false, fade={in:0, out:0}) {
@@ -120,16 +123,6 @@ export class BufferPlayer {
         let newBuffer = this.context.createBuffer(1, this.buffer.length, this.context.sampleRate);
         newBuffer.getChannelData(0).set(this.buffer);
         this.gainNode.gain.setValueAtTime(1, this.context.currentTime);
-        //console.log('ramp in '+ this.context.currentTime+', '+fade.in);
-        // this.getValue();
-        // this.gainNode.gain.linearRampToValueAtTime(1.0, this.context.currentTime+fade.in);
-        // setTimeout(this.getValue.bind(this), 300);
-        // setTimeout(this.getValue.bind(this), 600);
-        // setTimeout(this.getValue.bind(this), 900);
-        // setTimeout(this.getValue.bind(this), fade.in*1000);
-        // setTimeout((()=>{
-        //     this.gainNode.gain.linearRampToValueAtTime(0, this.context.currentTime+newBuffer.duration)}).bind(this)
-        //     ,(newBuffer.duration-fade.out)*1000);
         playSource.loop = loop;
         playSource.buffer = newBuffer;
         playSource.connect(this.gainNode);
@@ -137,11 +130,21 @@ export class BufferPlayer {
         playSource.onended = (function() {
             this.toStop();
             console.log('onend!');
-            // if (this.loop) {
-            //     this.play(this.loop, fade);
-            // }
         }).bind(this);
         this.playSource = playSource;
+    }
+
+    applyPingPong(delay=0.15, feedback=0.2) {
+        console.log('applyPingPong!');
+        let delayNode = this.context.createDelay();
+        delayNode.delayTime.setValueAtTime(delay, this.context.currentTime);
+        //this.gainNode.disconnect(this.connectTo);
+        this.gainNode.connect(delayNode);
+        delayNode.connect(this.context.destination);
+        let fbGain = this.context.createGain();
+        fbGain.gain.setValueAtTime(feedback, this.context.currentTime);
+        delayNode.connect(fbGain);
+        fbGain.connect(delayNode);
     }
 
     setPlayGain(v) {
