@@ -3,6 +3,7 @@
 import $ from 'jquery';
 import './style.css';
 import './pageHeight';
+import './checkPC';
 import {putSelector} from'./pageHeight';
 import viewStep from '@zonesoundcreative/view-step';
 import './rec.js';
@@ -50,7 +51,7 @@ function initPage() {
                     viewstep.showNext(true, true, 2);
                 } else {
                     //TODO: handle
-                    viewstep.showNext(true, true, 2);
+                    //viewstep.showNext(true, true, 2);
                     showDialog('For the full experience, please accept orientation permission.');
                 }
             });

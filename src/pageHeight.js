@@ -9,13 +9,16 @@ function changeSize() {
 changeSize();
 
 export function putSelector(){
-    let vh = window.innerHeight;
+    console.log(window.innerHeight, window.innerWidth);
+    let vh = window.innerHeight > window.innerWidth ? window.innerHeight : window.innerWidth;
     let f = document.getElementById('footer').clientHeight;
     if (f == 0) return;
     let t = document.getElementById('title').clientHeight;
     let st = document.getElementById('subtitle').clientHeight;
     let s = document.getElementById('selector').clientHeight;
     let margin = (vh - (t+st+s+f))/3 * 0.01;
+    if (margin < 0) margin = 0;
+    console.log(vh, f, t, st, s);
     document.documentElement.style.setProperty('--sub', `${margin}px`);
     console.log(margin);
 }

@@ -449,3 +449,20 @@ h4 {
       box-shadow: -38px 0 , -14px 0, 14px 0 , 38px -12px;
     }
   }
+
+
+@media only screen and (orientation:landscape){
+    .container {
+        transform: rotate(-90deg);
+        transform-origin: left top;
+        width: 100vh;
+        height: 100vw;
+        overflow-x: hidden;
+        position: absolute;
+        top: 100%;
+        left: 0;
+    }
+    #title {
+        padding-top: 15px;
+    }
+}

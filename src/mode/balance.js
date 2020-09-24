@@ -29,7 +29,7 @@ export class Balance extends Mode{
         fv = minmax(fv, 0, 1);
         this.logHTML('biginstr', fv + '<br>' + v + '<br>' + json2Str(this.dm.orientVel));
         this.forest.volume.rampTo(fv*(-45), 1);
-        this.noise.setVolume(fv*0.5, 0);
+        this.noise.setVolume(fv*0.45, 0);
     }
 
     startEnable() {
