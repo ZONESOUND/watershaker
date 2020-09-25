@@ -1,5 +1,6 @@
 import {recStart, recEnd, recRestart} from '../ussage/recusage.js';
 import {BufferPlayer} from '../recorder.js';
+import {checkMicPermission, recorder} from '../mic';
 export class Mode {    
     constructor(config={}) {
         this.fillConfig(config);
@@ -80,6 +81,14 @@ export class Mode {
         return (o.pitch + o.roll + o.yaw)/3;
     }
 
+    pause() {
+        this.setEnable(false);
+    }
+    resume() {
+        console.log('set resume?');
+        this.setEnable(true);
+    }
+
     inEnd(){}
     inInit(){}
     inMotion(){}
@@ -121,13 +130,14 @@ export class RecordMode extends Mode {
         }).bind(this));
         this.recorder.record(true);
     }
-    stopRecord() {
+    stopRecord(go=true) {
         if (this.recording) {
             recEnd();
             this.recording = false;
             this.progressBar.stop();
             //this.recorder.stop();
-            this.recorder.stop(this.afterStop.bind(this));
+            if (go) this.recorder.stop(this.afterStop.bind(this));
+            else this.recorder.stop();
         }
     }
     playRecord() {
@@ -135,7 +145,7 @@ export class RecordMode extends Mode {
     }
 
     inEnd() {
-        this.stopRecord();
+        this.stopRecord(false);
         this.playing = false;
     }
 
@@ -146,5 +156,31 @@ export class RecordMode extends Mode {
         }
         if (buffer.length - i < 1000) this.buffer = buffer;
         else this.buffer = buffer.slice(i);
+    }
+
+    pause() {
+        this.prevPlaying = this.playing;
+        if (!this.playing) {
+            this.stopRecord(false);
+            recRestart();
+        }
+        this.bufferPlayer.stop();
+        this.playing = false;
+    }
+    resume() {
+        //this.recorder.
+        this.playing = this.prevPlaying;
+        if (this.playing) {
+            this.bufferPlayer.play();
+        }
+        checkMicPermission().then((()=>{
+            console.log(recorder);
+            this.recorder = recorder;
+        }).bind(this));
+        
+        // if (this.recorder.disconnectAll) {
+        //     this.recorder.disconnectAll();
+        //     this.recorder.init();
+        // }
     }
 }

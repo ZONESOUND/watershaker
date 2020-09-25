@@ -17,13 +17,15 @@ export class Gyro extends RecordMode {
     }
 
     afterStop() {
-        //console.log('after stop!');
+        console.log('after stop!', this.recorder.getBuffer().buffer);
         this.bufferPlayer.applyPingPong();
         this.bufferPlayer.playBuffer(this.recorder.getBuffer(), true, {in:2, out:1});
         this.playing = true;
     }
 
     inEnd() {
+        this.stopRecord(false);
+        this.playing = false;
         this.bufferPlayer.stop();
     }
 

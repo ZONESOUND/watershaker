@@ -49,6 +49,17 @@
 </head>
 <body>
   <div class="container mt-1">
+    <!-- POPUP YOUTUBE -->
+    <div class="lightbox js-lightbox hidden">
+      <div class="wrap">
+        <div class="inner">
+          <div id="player"></div>
+          <div class="close"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE  -->
     <div id="firstpage" class="step-1 shown">
       <div id="wrapper">
         <div id="title" class="title image-w">
@@ -82,8 +93,10 @@
     <div id="playpage" class="step-3 overlay" style="display:none">
       <div id="prev">
         <img id="previmg" src=""/>
-        <!-- <i class="fas fa-arrow-left"></i> -->
+        <img id="helpimg" class="hidden" src="./question_nocircle.png"/>
+
       </div>
+      
       <div id="recarea" class="center recorduse">
         <div id="recback" class="reccircle"></div>
         <div id="recprogress" class="reccircle">
@@ -108,5 +121,8 @@
       </div>
     </div>
   </div>
+
+  <!-- youtube api -->
+  <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>

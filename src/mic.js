@@ -1,5 +1,6 @@
 import {getRecorder} from './recorder';
-import {showDialog, hint} from './dialog';
+import {showDialog} from './dialog';
+import {hint} from './const';
 
 var recorder;
 const AudioContext = window.AudioContext|| window.webkitAudioContext ||      window.mozAudioContext || window.msAudioContext;
@@ -56,9 +57,9 @@ let grantMicPermission = async () => {
 }
 
 let checkMicPermission = async () => {
-    if (!micPermission) {
-        micPermission = await grantMicPermission();
-    }
+    //if (!micPermission) {
+    micPermission = await grantMicPermission();
+    //}
 }
 
 let initRecord = function() {
@@ -69,7 +70,7 @@ let initRecord = function() {
             testMic = true;
         } else {
             showDialog('There seems to be an issue with the microphone, please reload the page.');
-            testMic = false;
+            testMic = true; //TODO: change back!
         }
         testFinish = true;
     }, testTime);

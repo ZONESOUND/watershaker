@@ -1,7 +1,7 @@
 class RecorderInterface {
     recording = false;
     constructor(mediaStream, context){
-        //this.
+        this.stream = mediaStream;
         this.recordedBuffer = [];
         this.context = context;
         this.setupStream(mediaStream);
@@ -100,6 +100,7 @@ class Recorder extends RecorderInterface {
     constructor(mediaStream, context) {
         super(mediaStream, context);
         this.type = 'array';
+        
     }
 
     setupStream(ms) {
@@ -114,6 +115,11 @@ class Recorder extends RecorderInterface {
     connectAll() {
         this.processor.connect(this.context.destination);
         this.source.connect(this.processor);
+    }
+
+    disconnectAll() {
+        this.processor.disconnect(this.context.destination);
+        this.source.disconnect(this.processor);
     }
 
     initProcessor() {
@@ -139,7 +145,7 @@ export class BufferPlayer {
         this.destination = this.context.destination;
         this.applyComposer();
         this.gainNode.connect(this.destination);
-
+        this.loop = false;
     }
 
     playBuffer({buffer, type}, loop=false, fade={in:0, out:0}) {
@@ -157,7 +163,7 @@ export class BufferPlayer {
         this.play(loop, fade);
     }
 
-    play(loop=false, fade={in:0, out:0}) {
+    play(loop=this.loop, fade={in:0, out:0}) {
         this.loop = loop;
         let playSource = this.context.createBufferSource();
         this.gainNode.gain.setValueAtTime(1, this.context.currentTime);
@@ -219,7 +225,6 @@ export class BufferPlayer {
     }
 
     stop() {
-        this.loop = false;
         this.toStop();
     }
 

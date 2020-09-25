@@ -35,7 +35,6 @@ export class Balance extends Mode{
 
     startEnable() {
         if (this.forest.loaded) {
-            //console.log(this.forest);
             this.forest.volume.rampTo(0, 1);
             this.forest.start("+0");
             this.noise.start();

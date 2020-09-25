@@ -1,36 +1,36 @@
 import $ from 'jquery';
+import './lightbox.css';
 import './style.css';
 import './pageHeight';
-import './checkPC';
+import {checkPC} from'./checkPC';
 import {putSelector} from'./pageHeight';
 import viewStep from '@zonesoundcreative/view-step';
 import {recRestart, showInstrOnly} from './ussage/recusage.js';
 import {progressbar} from './rec.js';
 import {show, hide} from './ussage/cssusage';
 import arrow from './img/arrow.png';
-import {importAll} from './ussage/ussage';
-import {Conductor} from './mode/conductor2';
-import {Shaker} from './mode/shaker';
-import {Balance} from './mode/balance';
-import {Gyro} from './mode/gyro';
 import {dm} from './device';
 import * as Tone from 'tone';
 import {checkMicPermission, recorder, micPermission} from './mic.js';
-import {showDialog, hint} from './dialog';
+import {showDialog} from './dialog';
+import './ytplayer';
+import {images, names, videos, hint, initModeList, createBtn} from './const';
+import './orientation.css';
 
 var loading = false;
-const images = importAll(require.context('./img/png', false, /\.(png|jpe?g|svg)$/));
-
-const names = ['Shaker', 'Gyro', 'Conductor', 'Balance'];
 var viewstep = new viewStep('.step', 1, 2, {
     2: checkLoad,
     3: selectMode
 });
 var mode = -1;
 export var nowMode = null;
+export var nowVideo = "";
 var modeList;
-initPage();
+if (checkPC()) {
+    initPage();
+}
 function initPage() {
+    
     $('#previmg').attr("src", arrow);
     for (let i in images) {
         //console.log(images[i].default);
@@ -42,6 +42,7 @@ function initPage() {
             } 
             mode = i;
             nowMode = modeList[i];
+            nowVideo = videos[i];
             // change to await
             dm.requestPermission().then(()=>{
                 if (dm.granted) {
@@ -57,49 +58,20 @@ function initPage() {
     Promise.all(Array.from(document.images).filter(img => !img.complete).map(img => new Promise(resolve => {img.onload = img.onerror = resolve; }))).then(() => {
         $('#selector div').removeClass('hidden');
         $('#subtitle').removeClass('hidden');
+        $('.lightbox').removeClass('hidden');
+
         putSelector();
-        initModeList();
+        modeList = initModeList();
     });
 }
 
-function initModeList() {
-    let shaker = new Shaker({
-        recordTime: 600,
-        recordInstr: 'Create and capture a short sound',
-        instr: 'SHAKE THE SOUND',
-    });
-    let gyro = new Gyro({
-        recordTime: 10000,
-        recordInstr: 'Find and record a continuous sound',
-        instr: 'MODULATE THE SOUND WITH MOTIONS',
-    });
-    let bal = new Balance({
-        instr: 'KEEP BALANCE',
-        onload:()=>{
-            if (loading) checkLoad();
-            //alert('balance loaded');
-        }
-    });
-    let cond = new Conductor({
-        instr: 'WAVE THE DEVICE TO DIRECT THE MUSIC',
-        onload:()=>{
-            if (loading) checkLoad();
-            //alert('conductor loaded');
-        }
-    });
-    modeList = [shaker, gyro, cond, bal];
+export function onload() {
+    if (loading) checkLoad();
 }
 
-function createBtn(id, src, txt) {
-    return `<div id=${id} class="square hidden">
-        <div class="squarecontent">
-            <img src="${src}"/>
-            <div>${txt}</div>
-        </div>
-    </div>`;
-}
 
-$("#prev").on('click', function() {
+
+$("#previmg").on('click', function() {
     viewstep.showPrev();
     viewstep.showPrev();
     nowMode.setEnable(false);
@@ -116,9 +88,7 @@ function selectMode () {
     if (mode < 2) {
         show('.recorduse');
         recRestart();
-        //console.log(progressbar, recorder);
         nowMode.setProgressBar(progressbar); //one time?
-        if (nowMode.recorder == null) nowMode.setRecorder(recorder); //one time?
     } else {
         hide('.recorduse');
         showInstrOnly();
@@ -133,6 +103,7 @@ function checkLoad() {
         if (mode < 2) {
             checkMicPermission().then(()=>{
                 if (micPermission) {
+                    nowMode.setRecorder(recorder);
                     viewstep.showNext(true, true, 3);
                 } else {
                     viewstep.showPrev();
