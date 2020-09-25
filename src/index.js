@@ -48,7 +48,7 @@ function initPage() {
                 if (dm.granted) {
                     viewstep.showNext(true, true, 2);
                 } else {
-                    viewstep.showNext(true, true, 2);
+                    //viewstep.showNext(true, true, 2);
                     showDialog('For the full experience, please accept orientation permission.'+hint);
                 }
             });

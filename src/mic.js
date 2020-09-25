@@ -70,7 +70,7 @@ let initRecord = function() {
             testMic = true;
         } else {
             showDialog('There seems to be an issue with the microphone, please reload the page.');
-            testMic = true; //TODO: change back!
+            testMic = false; 
         }
         testFinish = true;
     }, testTime);

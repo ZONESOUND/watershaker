@@ -7,7 +7,7 @@ import {onload} from './index';
 
 export const images = importAll(require.context('./img/png', false, /\.(png|jpe?g|svg)$/));
 export const names = ['Shaker', 'Gyro', 'Conductor', 'Balance'];
-export const videos = ["ylMtm7KK7rM", "ylMtm7KK7rM", "ylMtm7KK7rM", "ylMtm7KK7rM"];
+export const videos = ["mPWEKlhxBeI", "X7WG4lZXrDs", "W0EupWkmxGI", "NEG4Fvjj6e4"];
 export const hint = " We recommend use Safari (iOS), Chrome (Android).";
 
 export function initModeList() {
