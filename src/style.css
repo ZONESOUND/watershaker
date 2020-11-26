@@ -478,3 +478,17 @@ h4 {
 #helpimg {
     width: 10%;
 }
+
+#start {
+    background-color: black;
+    color: white;
+    padding: 1em;
+    font-size: 10px;
+    border: 1px solid white;
+    font-size: 1.5em;
+    font-weight: 200;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+}

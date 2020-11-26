@@ -32,40 +32,35 @@ if (checkPC()) {
 function initPage() {
     
     $('#previmg').attr("src", arrow);
-    for (let i in images) {
-        //console.log(images[i].default);
-        $('#selector').append(createBtn(`mode-${i}`, images[i].default, names[i]));
-        // button onclick
-        $('#mode-'+i).on('click', function() {
-            if (mode == -1) { 
-                Tone.context.resume();
-            } 
-            mode = i;
-            nowMode = modeList[i];
-            nowVideo = videos[i];
-            // change to await
-            dm.requestPermission().then(()=>{
-                if (dm.granted) {
-                    viewstep.showNext(true, true, 2);
-                } else {
-                    //viewstep.showNext(true, true, 2);
-                    showDialog('For the full experience, please accept orientation permission.'+hint);
-                }
-            });
+    $('#start').on('click', function() {
+        Tone.context.resume();
+        mode = 0;
+        nowMode = modeList[0];
+        // change to await
+        dm.requestPermission().then(()=>{
+            if (dm.granted) {
+                viewstep.showNext(true, true, 2);
+            } else {
+                //viewstep.showNext(true, true, 2);
+                showDialog('For the full experience, please accept orientation permission.'+hint);
+            }
         });
-
-    }
-    Promise.all(Array.from(document.images).filter(img => !img.complete).map(img => new Promise(resolve => {img.onload = img.onerror = resolve; }))).then(() => {
-        $('#selector div').removeClass('hidden');
-        $('#subtitle').removeClass('hidden');
-        $('.lightbox').removeClass('hidden');
-
-        putSelector();
-        modeList = initModeList();
     });
+    $('.lightbox').removeClass('hidden');
+    modeList = initModeList();
+
+    // Promise.all(Array.from(document.images).filter(img => !img.complete).map(img => new Promise(resolve => {img.onload = img.onerror = resolve; }))).then(() => {
+    //     $('#selector div').removeClass('hidden');
+    //     $('#subtitle').removeClass('hidden');
+    //     $('.lightbox').removeClass('hidden');
+
+    //     putSelector();
+        
+    // });
 }
 
 export function onload() {
+    console.log("load~");
     if (loading) checkLoad();
 }
 
@@ -85,7 +80,7 @@ function selectMode () {
     $("#recinstr").text(nowMode.getRecordInstr());
     nowMode.setDM(dm); //only one time?
     nowMode.setEnable(true);
-    if (mode < 2) {
+    if (mode == 1) {
         show('.recorduse');
         recRestart();
         nowMode.setProgressBar(progressbar); //one time?
@@ -100,7 +95,7 @@ function checkLoad() {
     loading = true;
     if (modeList[mode].loaded){ 
         loading = false;
-        if (mode < 2) {
+        if (mode == 1) {
             checkMicPermission().then(()=>{
                 if (micPermission) {
                     nowMode.setRecorder(recorder);
